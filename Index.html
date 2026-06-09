@@ -3,363 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tycoon Builder: Commercial Empire</title>
-<script src="https://sdk.crazygames.com/crazygames-sdk-v2.js"></script>
+<title>Tycoon Game</title>
 <style>
-  :root {
-    --bg-main: #0b0f19;
-    --panel-bg: #151f32;
-    --border-color: #223452;
-    --money-green: #22c55e;
-    --gold-prestige: #eab308;
-    --diamond-blue: #38bdf8;
-    --text-white: #ffffff;
-    --text-gray: #94a3b8;
+  body { background: #0b0f19; color: white; font-family: sans-serif; padding: 20px; }
+  .stage-row { 
+    background: #1e293b; border: 1px solid #334155; padding: 15px; 
+    margin-bottom: 10px; border-radius: 8px; display: flex; align-items: center; gap: 15px; 
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { 
-    font-family: system-ui, -apple-system, sans-serif; 
-    background-color: var(--bg-main); 
-    color: var(--text-white); 
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-  }
-
-  header {
-    width: 100%;
-    max-width: 480px;
-    text-align: center;
-    padding: 10px 0;
-    position: sticky;
-    top: 0;
-    background: var(--bg-main);
-    z-index: 10;
-  }
-
-  .main-money {
-    font-size: 2.2rem;
-    font-weight: 900;
-    color: var(--money-green);
-    font-family: monospace;
-    text-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
-  }
-
-  .stats-bar {
-    display: flex;
-    justify-content: space-around;
-    font-size: 0.85rem;
-    font-weight: bold;
-    margin-top: 4px;
-    background: #1e293b;
-    padding: 6px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-  }
-
-  /* Core container fix to force items to show up sequentially */
-  .scroll-container {
-    width: 100%;
-    max-width: 480px;
-    display: block; /* Force regular block layout instead of broken flex */
-    margin-top: 15px;
-    padding-bottom: 160px; /* High padding ensures bottom levels aren't hidden by nav panel */
-  }
-
-  .stage-card {
-    background: var(--panel-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-    margin-bottom: 12px; /* Force separation between levels */
-    min-height: 70px;
-    overflow: hidden;
-  }
-
-  .stage-icon-box {
-    width: 55px;
-    height: 55px;
-    background: #1e293b;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    z-index: 2;
-    cursor: pointer;
-    border: 2px solid #334155;
-    flex-shrink: 0;
-  }
-  .stage-qty { 
-    font-size: 0.75rem; 
-    font-weight: 800; 
-    color: #000000; 
-    background: var(--gold-prestige);
-    padding: 1px 4px;
-    border-radius: 4px;
-    margin-top: 2px;
-    min-width: 24px;
-    text-align: center;
-  }
-
-  .progress-track {
-    flex-grow: 1;
-    height: 55px;
-    background: #0f172a;
-    border-radius: 8px;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-left: 12px;
-  }
-
-  .progress-fill {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #16a34a, #22c55e);
-    z-index: -1;
-  }
-
-  .stage-name { 
-    font-size: 0.9rem; 
-    font-weight: bold; 
-    display: flex; 
-    align-items: center; 
-    gap: 5px; 
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-  }
-  
-  .level-badge {
-    font-size: 0.7rem;
-    background: #334155;
-    color: var(--text-white);
-    padding: 1px 5px;
-    border-radius: 4px;
-    font-weight: normal;
-  }
-
-  .stage-revenue { font-size: 0.85rem; color: var(--money-green); font-family: monospace; font-weight: bold; }
-  .stage-timer { position: absolute; right: 10px; bottom: 6px; font-size: 0.75rem; color: var(--text-gray); font-family: monospace; }
-
-  .action-buttons { display: flex; flex-direction: column; gap: 4px; z-index: 2; flex-shrink: 0; }
-
-  button { border: none; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: all 0.1s ease; }
-  button:active { transform: scale(0.95); }
-  
-  button.buy-btn { background: #0284c7; color: white; padding: 8px 6px; width: 95px; font-size: 0.7rem; }
-  button.buy-btn:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
-  button.mgr-btn { background: #475569; color: #cbd5e1; padding: 4px; font-size: 0.65rem; }
-  button.mgr-btn.hired { background: var(--gold-prestige); color: #000000; }
-
-  .nav-panel {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    max-width: 480px;
-    background: rgba(21, 31, 50, 0.98);
-    border-top: 2px solid var(--border-color);
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    border-radius: 16px 16px 0 0;
-    z-index: 100;
-  }
-  .nav-row { display: flex; justify-content: space-between; align-items: center; }
-  .nav-buttons { display: flex; gap: 6px; width: 100%; }
-  .nav-buttons button { flex: 1; padding: 12px 6px; font-size: 0.8rem; }
-  .btn-shop-toggle { background: var(--diamond-blue); color: black; }
-  button.reset-btn { background: var(--gold-prestige); color: #000000; }
-  button.hard-clear-btn { background: #dc2626; color: white; }
-
-  .notice {
-    background: #1e293b; border: 1px solid var(--money-green); color: white;
-    padding: 10px; font-size: 0.8rem; border-radius: 8px; margin-bottom: 10px;
-    text-align: center; width: 100%; max-width: 480px; display: none;
-  }
-
-  .shop-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(11, 15, 25, 0.98);
-    z-index: 200;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-  }
-  .shop-header { width: 100%; max-width: 440px; display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
-  .shop-grid { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; }
-  .shop-item { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
-  .shop-btn { background: var(--diamond-blue); color: black; padding: 8px 12px; font-size: 0.8rem; }
-  .close-shop { background: #334155; color: white; padding: 8px 16px; }
+  button { padding: 10px; cursor: pointer; background: #22c55e; border: none; color: white; border-radius: 4px; font-weight: bold; }
+  button:disabled { background: #475569; cursor: not-allowed; }
 </style>
 </head>
 <body>
 
-  <header>
-    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-gray); letter-spacing: 1px;">Liquid Assets</div>
-    <div id="displayMoney" class="main-money">$0</div>
-    
-    <div class="stats-bar">
-      <span style="color: var(--gold-prestige)">🧱 <span id="displayBricks">0</span> Bricks</span>
-      <span style="color: var(--diamond-blue)">💎 <span id="displayDiamonds">50</span> Diamonds</span>
-      <span style="color: var(--text-gray)">🏗️ Sold: <span id="prestigeTally">0</span></span>
-    </div>
-  </header>
-
-  <div id="offlineNotice" class="notice"></div>
-
-  <div class="scroll-container" id="stagesList"></div>
-
-  <div id="shopModal" class="shop-modal">
-    <div class="shop-header">
-      <h2>Corporate Store</h2>
-      <button class="close-shop" onclick="toggleShop(false)">Back</button>
-    </div>
-    <div class="shop-grid">
-      <div class="shop-item">
-        <div>
-          <h3>⏱️ 1-Day Permit Forward</h3>
-          <p style="font-size:0.75rem; color:var(--text-gray);">Collect 24 hours of total passive income.</p>
-        </div>
-        <button class="shop-btn" onclick="buyTimeWarp(1, 25)">Cost: 25 💎</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="nav-panel">
-    <div class="nav-row" style="font-size: 0.8rem; color: var(--text-gray);">
-      <span>Pending: <span id="pendingBricks" style="color:var(--gold-prestige); font-weight:bold;">0</span> Bricks</span>
-    </div>
-    <div class="nav-buttons">
-      <button class="btn-shop-toggle" onclick="toggleShop(true)">🛒 Store</button>
-      <button id="prestigeBtn" class="reset-btn" onclick="triggerPrestige()">Sell Assets</button>
-      <button class="hard-clear-btn" onclick="hardResetGame()">Hard Reset</button>
-    </div>
-  </div>
+  <h1>Assets: $<span id="money">0</span></h1>
+  <div id="gameContainer"></div>
 
   <script>
-    const stageDefinitions = [
-      { id: 0, icon: '📜', name: 'Zoning & Permits',     baseCost: 4,         baseRevenue: 1,        baseTime: 300 },
-      { id: 1, icon: '🚜', name: 'Excavation & Clears',  baseCost: 60,        baseRevenue: 60,       baseTime: 750 },    
-      { id: 2, icon: '🧱', name: 'Concrete Foundation', baseCost: 720,       baseRevenue: 540,      baseTime: 1500 },   
-      { id: 3, icon: '🪵', name: 'Framing & Studs',      baseCost: 8640,      baseRevenue: 4320,     baseTime: 3000 },   
-      { id: 4, icon: '🏠', name: 'Roofing & Siding',     baseCost: 103680,    baseRevenue: 51840,    baseTime: 6000 },   
-      { id: 5, icon: '🚰', name: 'Plumbing Systems',     baseCost: 1244160,   baseRevenue: 622080,   baseTime: 12000 },  
-      { id: 6, icon: '⚡', name: 'Electrical Grid',      baseCost: 14930000,  baseRevenue: 7464900,  baseTime: 24000 },  
-      { id: 7, icon: '📐', name: 'Drywall & Insulation', baseCost: 179160000, baseRevenue: 89580000, baseTime: 48000 },  
-      { id: 8, icon: '🎨', name: 'Interior Trim & Paint',baseCost: 2150000000,baseRevenue: 1075000000,baseTime: 96000 },  
-      { id: 9, icon: '🔑', name: 'Final Handover Sale', baseCost: 25800000000,baseRevenue: 12900000000,baseTime: 192000 }  
+    const stages = [
+      { id: 0, name: 'Permits', cost: 10, revenue: 1 },
+      { id: 1, name: 'Excavation', cost: 100, revenue: 10 }
     ];
+    let money = 50;
 
-    let state = {
-      money: 0,
-      lifetimeEarnings: 0,
-      goldenBricks: 0,
-      diamonds: 50, 
-      prestigeCount: 0,
-      lastSaveTime: Date.now(),
-      stages: stageDefinitions.map(s => ({ id: s.id, qty: s.id === 0 ? 1 : 0, mgrHired: false, progress: 0, isActive: false }))
-    };
-
-    function toggleShop(show) {
-      document.getElementById('shopModal').style.display = show ? 'flex' : 'none';
-    }
-
-    function generateUI() {
-      const listEl = document.getElementById('stagesList');
-      if (!listEl) return;
-      listEl.innerHTML = '';
+    function render() {
+      const container = document.getElementById('gameContainer');
+      container.innerHTML = '';
       
-      stageDefinitions.forEach((def, index) => {
-        const liveData = state.stages.find(s => s.id === def.id) || { qty: def.id === 0 ? 1 : 0, mgrHired: false };
-        const card = document.createElement('div');
-        card.className = 'stage-card';
-        card.id = `card-${def.id}`;
-        
-        card.innerHTML = `
-          <div class="stage-icon-box" onclick="startStage(${def.id})">
-            <div>${def.icon}</div>
-            <div class="stage-qty" id="qty-${def.id}">${liveData.qty}</div>
-          </div>
-          
-          <div class="progress-track" onclick="startStage(${def.id})">
-            <div class="progress-fill" id="fill-${def.id}"></div>
-            <div class="stage-name">
-              <span class="level-badge">Lv ${index + 1}</span>
-              <span>${def.name}</span>
-            </div>
-            <div class="stage-revenue" id="rev-${def.id}">$0</div>
-            <div class="stage-timer" id="time-${def.id}">0.0s</div>
-          </div>
-          
-          <div class="action-buttons">
-            <button class="buy-btn" id="buy-${def.id}" onclick="buyStage(${def.id})">$0</button>
-            <button class="mgr-btn ${liveData.mgrHired ? 'hired' : ''}" id="mgr-${def.id}" onclick="buyManager(${def.id})">Manager</button>
-          </div>
+      stages.forEach(stage => {
+        const div = document.createElement('div');
+        div.className = 'stage-row';
+        div.innerHTML = `
+          <span>${stage.name}</span>
+          <button id="btn-${stage.id}">Buy for $${stage.cost}</button>
         `;
-        listEl.appendChild(card);
+        container.appendChild(div);
+
+        // ATTACH EVENT LISTENER DIRECTLY
+        const btn = div.querySelector('button');
+        btn.onclick = function() {
+          console.log("Clicked:", stage.name);
+          if (money >= stage.cost) {
+            money -= stage.cost;
+            alert("Bought " + stage.name);
+            update();
+          } else {
+            alert("Not enough money!");
+          }
+        };
       });
     }
 
-    function getMilestoneSpeedFactor(qty) {
-      let speedFactor = 1;
-      if (qty >= 25) speedFactor *= 2;
-      if (qty >= 50) speedFactor *= 2;
-      if (qty >= 100) speedFactor *= 2;
-      if (qty >= 250) speedFactor *= 2;
-      return speedFactor;
+    function update() {
+      document.getElementById('money').innerText = money;
     }
 
-    function getDuration(def, qty) {
-      let duration = def.baseTime * Math.pow(1.05, state.prestigeCount);
-      let totalSpeedMultiplier = getMilestoneSpeedFactor(qty);
-      if (isNaN(duration) || duration <= 0) duration = def.baseTime;
-      return duration / totalSpeedMultiplier;
-    }
-
-    function getGlobalMultiplier() {
-      return 1 + (state.goldenBricks * 0.02);
-    }
-
-    function updateTickers() {
-      const globalMult = getGlobalMultiplier();
-      
-      if(document.getElementById('displayMoney')) document.getElementById('displayMoney').innerText = `$${Math.floor(state.money).toLocaleString()}`;
-      if(document.getElementById('displayBricks')) document.getElementById('displayBricks').innerText = state.goldenBricks.toLocaleString();
-      if(document.getElementById('displayDiamonds')) document.getElementById('displayDiamonds').innerText = state.diamonds.toLocaleString();
-      if(document.getElementById('prestigeTally')) document.getElementById('prestigeTally').innerText = state.prestigeCount;
-
-      let pending = Math.floor(150 * Math.sqrt(state.lifetimeEarnings / 1000000)) - state.goldenBricks;
-      if (pending < 0 || isNaN(pending)) pending = 0;
-      if(document.getElementById('pendingBricks')) document.getElementById('pendingBricks').innerText = pending.toLocaleString();
-      if(document.getElementById('prestigeBtn')) document.getElementById('prestigeBtn').disabled = pending === 0;
-
-      stageDefinitions.forEach(def => {
-        const liveData = state.stages.find(s => s.id === def.id);
-        if (!liveData) return;
-        
-        const currentCost = Math.floor(def.baseCost * Math.pow(1.15, liveData.qty));
-        const calculatedRev = def.baseRevenue * liveData.qty * globalMult;
-        
-        const qtyEl = document.getElementById(`qty-${def.id}`);
-        if(qtyEl) qtyEl.innerText = liveData.
+    render();
+    update();
+  </script>
+</body>
+</html>
