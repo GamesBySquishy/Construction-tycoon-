@@ -3,96 +3,101 @@
 <head>
 <meta charset="UTF-8">
 <style>
-  :root { --bg: #0b0f19; --panel: #151f32; --accent: #22c55e; --text: #ffffff; }
-  body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+  :root { --bg: #0b0f19; --panel: #151f32; --gold: #eab308; --money: #22c55e; --blue: #0284c7; }
+  body { background: var(--bg); color: #f8fafc; font-family: 'Inter', sans-serif; padding: 15px; max-width: 480px; margin: auto; }
   
-  .stage-row { 
-    background: var(--panel); 
-    border: 1px solid #223452; 
-    padding: 15px; 
-    margin-bottom: 12px; 
-    border-radius: 12px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-  }
-
-  .action-btn { 
-    padding: 10px 15px; cursor: pointer; background: #0284c7; border: none; color: white; border-radius: 6px; font-weight: bold; 
-  }
-  .mgr-btn { 
-    padding: 10px 15px; cursor: pointer; background: #475569; border: none; color: #cbd5e1; border-radius: 6px; font-weight: bold; margin-left: 5px;
-  }
-  .mgr-btn.hired { background: #eab308; color: black; }
+  .header { border-bottom: 2px solid #1e293b; padding-bottom: 10px; margin-bottom: 20px; }
+  .money-text { font-size: 2.5rem; font-weight: 800; color: var(--money); font-family: monospace; }
+  
+  .stage-card { background: var(--panel); border: 1px solid #1e293b; padding: 16px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
+  .stage-name { font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  
+  .progress-bar { height: 14px; background: #0f172a; border-radius: 7px; overflow: hidden; margin-bottom: 12px; border: 1px solid #334155; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); width: 0%; }
+  
+  .controls { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+  button { padding: 10px; cursor: pointer; border: none; border-radius: 6px; font-weight: 700; font-size: 0.85rem; }
+  .buy-btn { background: var(--blue); color: white; }
+  .buy-btn:disabled { background: #1e293b; color: #475569; }
+  .mgr-btn { background: #334155; color: #cbd5e1; }
+  .mgr-btn.hired { background: var(--gold); color: black; }
 </style>
 </head>
 <body>
 
-  <h1>Assets: $<span id="money">50</span></h1>
+  <div class="header">
+    <div id="money" class="money-text">$50</div>
+    <div id="stats" style="color: #64748b; font-size: 0.8rem;">Bricks: 0 | Multiplier: 1x</div>
+  </div>
+  
   <div id="gameContainer"></div>
 
   <script>
+    // High-growth scaling configuration
     const stages = [
-      { id: 0, name: 'Permits', cost: 10, revenue: 1, hired: false },
-      { id: 1, name: 'Excavation', cost: 100, revenue: 10, hired: false },
-      { id: 2, name: 'Foundation', cost: 500, revenue: 50, hired: false }
+      { id: 0, name: 'Permits', baseCost: 10, baseRev: 5, time: 2000, qty: 1, progress: 0, hired: false },
+      { id: 1, name: 'Excavation', baseCost: 100, baseRev: 50, time: 4000, qty: 0, progress: 0, hired: false },
+      { id: 2, name: 'Foundation', baseCost: 1000, baseRev: 500, time: 8000, qty: 0, progress: 0, hired: false }
     ];
     let money = 50;
+    let bricks = 0;
 
     function render() {
       const container = document.getElementById('gameContainer');
       container.innerHTML = '';
-      
-      stages.forEach(stage => {
+      stages.forEach(s => {
+        const cost = Math.floor(s.baseCost * Math.pow(1.15, s.qty));
         const div = document.createElement('div');
-        div.className = 'stage-row';
+        div.className = 'stage-card';
         div.innerHTML = `
-          <div>
-            <strong>${stage.name}</strong><br>
-            <small>Revenue: $${stage.revenue}</small>
+          <div class="stage-name">
+            <span>${s.name} <small style="color:#94a3b8">Lv ${s.qty}</small></span>
+            <span>$${Math.floor(s.baseRev * s.qty)}/s</span>
           </div>
-          <div>
-            <button class="action-btn" id="buy-${stage.id}">Buy ($${stage.cost})</button>
-            <button class="mgr-btn ${stage.hired ? 'hired' : ''}" id="mgr-${stage.id}">Mgr</button>
+          <div class="progress-bar"><div class="progress-fill" id="fill-${s.id}"></div></div>
+          <div class="controls">
+            <button class="buy-btn" id="buy-${s.id}" ${money < cost ? 'disabled' : ''}>Buy $${cost}</button>
+            <button class="mgr-btn ${s.hired ? 'hired' : ''}" id="mgr-${s.id}">Mgr</button>
           </div>
         `;
         container.appendChild(div);
 
-        // Buy Logic
-        div.querySelector(`#buy-${stage.id}`).onclick = () => {
-          if (money >= stage.cost) {
-            money -= stage.cost;
-            updateUI();
+        div.querySelector(`#buy-${s.id}`).onclick = () => {
+          if (money >= cost) {
+            money -= cost;
+            s.qty++;
+            render();
           }
         };
 
-        // Manager Logic
-        div.querySelector(`#mgr-${stage.id}`).onclick = () => {
-          if (!stage.hired && money >= (stage.cost * 5)) {
-            money -= (stage.cost * 5);
-            stage.hired = true;
-            render(); // Re-render to update class
-            updateUI();
+        div.querySelector(`#mgr-${s.id}`).onclick = () => {
+          if (!s.hired && money >= (cost * 10)) {
+            money -= (cost * 10);
+            s.hired = true;
+            render();
           }
         };
       });
     }
 
-    function updateUI() {
-      document.getElementById('money').innerText = money;
-    }
-
-    // Auto-loop for income
-    setInterval(() => {
+    function loop() {
       stages.forEach(s => {
-        if (s.hired) {
-          money += s.revenue;
+        if (s.hired || s.progress > 0) {
+          s.progress += 16;
+          if (s.progress >= s.time) {
+            money += (s.baseRev * s.qty);
+            s.progress = 0;
+          }
+          const fill = document.getElementById(`fill-${s.id}`);
+          if (fill) fill.style.width = (s.progress / s.time * 100) + '%';
         }
       });
-      updateUI();
-    }, 1000);
+      document.getElementById('money').innerText = '$' + Math.floor(money).toLocaleString();
+      requestAnimationFrame(loop);
+    }
 
     render();
+    loop();
   </script>
 </body>
 </html>
