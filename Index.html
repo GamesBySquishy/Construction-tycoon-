@@ -211,15 +211,15 @@
     right: 3px;
     width: 10px;
     height: 10px;
-    background: #ef4444; /* Alert Crimson Red */
+    background: #ef4444; 
     border-radius: 50%;
     box-shadow: 0 0 8px #ef4444;
     z-index: 10;
-    animation: pulse 1.5s infinite;
+    animation: alertPulse 1.5s infinite;
   }
-  /* Offset for larger row container elements inside shop grid cards */
   div.shop-item.has-dot::after { top: 8px; right: 8px; }
 
+  @keyframes alertPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 </style>
 </head>
@@ -367,6 +367,7 @@
 
     let isAdPlaying = false; 
     let crazyGamesSDK = null;
+    let lastTickerUpdate = 0; // Performance Throttler
 
     if (window.CrazyGames && window.CrazyGames.SDK) {
       crazyGamesSDK = window.CrazyGames.SDK;
@@ -513,9 +514,7 @@
       document.getElementById('pendingBricks').innerText = pending.toLocaleString();
       document.getElementById('prestigeBtn').disabled = pending === 0;
       
-      // Prestige Hook Dot Trigger
       toggleDot('prestigeBtn', pending > 0);
 
       const adActive = Date.now() < state.adMultiplierEnd;
-      document.getElementById('adBadge').style.display = adActive ? 'inline-block' : 'none';
-      if (adActive
+      document.getElementById('adBadge').style.display = adAct
