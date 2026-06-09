@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idle Constructor - Saved Progress</title>
+<style>
+  body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background-color: #1e1e1e; 
+    color: #cccccc; 
+    padding: 20px; 
+  }
+  h1 { color: #ffffff; }
+  .dashboard { 
+    display: flex; 
+    gap: 20px; 
+    flex-wrap: wrap; 
+  }
+  .panel { 
+    background: #252526; 
+    border: 1px solid #333333;
+    padding: 20px; 
+    border-radius: 8px; 
+    width: 250px; 
+  }
+  .resource-val {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #4fc1ff;
+  }
+  button { 
+    background: #0e639c; 
+    color: white; 
+    border: none; 
+    padding: 10px; 
+    cursor: pointer; 
+    width: 100%; 
+    margin-top: 15px; 
+    border-radius: 4px; 
+    font-weight: bold;
+  }
+  button:hover { background: #1177bb; }
+  button:disabled { background: #555555; color: #888888; cursor: not-allowed; }
+  hr { border-color: #333333; margin: 15px 0; }
+  
+  /* The popup message area for offline gains */
+  .notice {
+    background: #2d2d2d;
+    color: #4fc1ff;
+    padding: 15px;
+    border-left: 4px solid #0e639c;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    display: none;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Idle Constructor</h1>
+  
+  <div id="offlineNotice" class="notice"></div>
+  
+  <div class="dashboard">
+    
+    <div class="panel">
+      <h2>Resources</h2>
+      <p>Wood: <span id="wood" class="resource-val">0</span></p>
+      <p>Production: <span id="wps">0</span> / sec</p>
+      <button onclick="chopWood()">Chop Wood (+1)</button>
+    </div>
+
+    <div class="panel">
+      <h2>Construction</h2>
+      <p>Lumberjack Camp (<span id="campCount">0</span>)</p>
+      <p>Cost: <span id="campCost">10</span> Wood</p>
+      <p><em>Generates +1 Wood / sec</em></p>
+      <button id="btnCamp" onclick="buyCamp()">Build Camp</button>
+      <hr>
+      <p>Sawmill (<span id="millCount">0</span>)</p>
+      <p>Cost: <span id="millCost">50</span> Wood</p>
+      <p><em>Generates +5 Wood / sec</em></p>
+      <button id="btnMill" onclick="buyMill()">Build Sawmill</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Game State (The data we need to remember)
+    let state = {
+      wood: 0,
+      wps: 0,
+      camps: 0,
+      campCost: 10,
+      mills: 0,
+      millCost: 50,
+      lastSaveTime: Date.now() // Records exactly when the game was last played
+    };
+
+    // Update the UI (What the player sees on screen)
+    function updateUI() {
+      document.getElementById('wood').innerText = Math.floor(state.wood);
+      document.getElementById('wps').innerText = state.wps;
+      
+      document.getElementById('campCount').innerText = state.camps;
+      document.getElementById('campCost').innerText = state.campCost;
+      document.getElementById('btnCamp').disabled = state.wood < state.campCost;
+
+      document.getElementById('millCount').innerText = state.mills;
+      document.getElementById('millCost').innerText = state.millCost;
+      document.getElementById('btnMill').disabled = state.wood < state.millCost;
+    }
+
+    // Player Actions
+    function chopWood() {
+      state.wood += 1;
+      updateUI();
+      saveGame();
+    }
+
+    function buyCamp() {
+      if (state.wood >= state.campCost) {
+        state.wood -= state.campCost;
+        state.camps += 1;
+        state.wps += 1;
+        state.campCost = Math.floor(state.campCost * 1.5);
+        updateUI();
+        saveGame();
+      }
+    }
+
+    function buyMill() {
+      if (state.wood >= state.millCost) {
+        state.wood -= state.millCost;
+        state.mills += 1;
+        state.wps += 5;
+        state.millCost = Math.floor(state.millCost * 1.5);
+        updateUI();
+        saveGame();
+      }
+    }
+
+    // Save Game to Browser Memory
+    function saveGame() {
+      state.lastSaveTime = Date.now(); // Put the current time in the capsule
+      localStorage.setItem('idleConstructorSave', JSON.stringify(state));
+    }
+
+    // Load Game from Browser Memory
+    function loadGame() {
+      const savedData = localStorage.getItem('idleConstructorSave');
+      if (savedData) {
+        state = JSON.parse(savedData);
+        
+        // Calculate time away
+        const now = Date.now();
+        const offlineSeconds = Math.floor((now - state.lastSaveTime) / 1000);
+        const offlineWood = offlineSeconds * state.wps;
+        
+        // If they earned wood while gone, show them a nice greeting
+        if (offlineWood > 0) {
+          state.wood += offlineWood;
+          const noticeEl = document.getElementById('offlineNotice');
+          noticeEl.innerText = `Welcome back! Your structures generated ${offlineWood} Wood while you were away for ${offlineSeconds} seconds.`;
+          noticeEl.style.display = 'block';
+          
+          // Make the greeting disappear after 7 seconds
+          setTimeout(() => { noticeEl.style.display = 'none'; }, 7000);
+        }
+      }
+      updateUI();
+    }
+
+    // Core Game Loop (Runs every 1 second)
+    setInterval(() => {
+      state.wood += state.wps;
+      updateUI();
+      saveGame(); // Automatically save progress every second
+    }, 1000);
+
+    // Run this right when the page opens up
+    loadGame();
+  </script>
+</body>
+</html>
