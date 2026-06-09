@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tycoon Builder: Commercial Empire</title>
+<!-- CrazyGames SDK Initialization -->
+<script src="https://sdk.crazygames.com/crazygames-sdk-v2.js"></script>
 <style>
   :root {
     --bg-main: #0b0f19;
@@ -147,7 +149,6 @@
   button.mgr-btn { background: #475569; color: #cbd5e1; padding: 4px; font-size: 0.65rem; }
   button.mgr-btn.hired { background: var(--gold-prestige); color: #000000; }
 
-  /* Monetized Shop Interface Overlay */
   .shop-modal {
     position: fixed;
     top: 0;
@@ -169,7 +170,6 @@
   .shop-btn.ad { background: #dc2626; color: white; }
   .close-shop { background: #334155; color: white; padding: 8px 16px; }
 
-  /* Navigation Footer Dashboard */
   .nav-panel {
     position: fixed;
     bottom: 0;
@@ -217,10 +217,8 @@
 
   <div id="offlineNotice" class="notice"></div>
 
-  <!-- Main Gameplay Scroll List -->
   <div class="scroll-container" id="stagesList"></div>
 
-  <!-- Premium Monetized Store Interface Overlay -->
   <div id="shopModal" class="shop-modal">
     <div class="shop-header">
       <h2>Premium Head Office Store</h2>
@@ -244,14 +242,13 @@
       <div class="shop-item">
         <div>
           <h3>🚀 Master Blueprint Surge</h3>
-          <p style="font-size:0.75rem; color:var(--text-gray);">Instantly claim 7 Days worth of passive operational cash matching your setup.</p>
+          <p style="font-size:0.75rem; color:var(--text-gray);">Instantly claim 7 Days worth of passive operational cash.</p>
         </div>
         <button class="shop-btn" onclick="buyTimeWarp(7, 100)">Cost: 100 💎</button>
       </div>
     </div>
   </div>
 
-  <!-- Navigation Dashboard Panel -->
   <div class="nav-panel">
     <div class="nav-row" style="font-size: 0.8rem; color: var(--text-gray);">
       <span>Reset Value: <span id="pendingBricks" style="color:var(--gold-prestige); font-weight:bold;">0</span> Bricks</span>
@@ -281,14 +278,22 @@
       money: 0,
       lifetimeEarnings: 0,
       goldenBricks: 0,
-      diamonds: 50, // Premium start bank balance
+      diamonds: 50, 
       prestigeCount: 0,
-      adMultiplierEnd: 0, // Expiration timestamp tracking
+      adMultiplierEnd: 0, 
       lastSaveTime: Date.now(),
       stages: stageDefinitions.map(s => ({
         id: s.id, qty: s.id === 0 ? 1 : 0, mgrHired: false, progress: 0, isActive: false
       }))
     };
+
+    let isAdPlaying = false; // Freeze variable required for CrazyGames ad deployment
+    let crazyGamesSDK = null;
+
+    // Connect and handshake with live CrazyGames infrastructure
+    if (window.CrazyGames && window.CrazyGames.SDK) {
+      crazyGamesSDK = window.CrazyGames.SDK;
+    }
 
     function toggleShop(show) {
       document.getElementById('shopModal').style.display = show ? 'flex' : 'none';
@@ -333,7 +338,6 @@
       });
     }
 
-    // Pro Milestone Math Check: Calculate how many speed doublers are earned
     function getMilestoneSpeedFactor(qty) {
       let speedFactor = 1;
       if (qty >= 25) speedFactor *= 2;
@@ -348,13 +352,12 @@
       if (def.id === 0) {
         duration = def.baseTime * Math.pow(1.10, state.prestigeCount);
       }
-      // Speed up operations by dividing duration by milestone multipliers
       return duration / getMilestoneSpeedFactor(qty);
     }
 
     function getGlobalMultiplier() {
       let m = 1 + (state.goldenBricks * 0.02);
-      if (Date.now() < state.adMultiplierEnd) m *= 2; // Inject 2x ad payout boost
+      if (Date.now() < state.adMultiplierEnd) m *= 2; 
       return m;
     }
 
@@ -370,7 +373,6 @@
       document.getElementById('pendingBricks').innerText = pending.toLocaleString();
       document.getElementById('prestigeBtn').disabled = pending === 0;
 
-      // Handle monetization ad window visibility structures
       const adActive = Date.now() < state.adMultiplierEnd;
       document.getElementById('adBadge').style.display = adActive ? 'inline-block' : 'none';
       if (adActive) {
@@ -392,7 +394,6 @@
         document.getElementById(`buy-${def.id}`).innerText = `Buy: $${currentCost.toLocaleString()}`;
         document.getElementById(`buy-${def.id}`).disabled = state.money < currentCost;
         
-        // Handle milestone label outputs
         const factor = getMilestoneSpeedFactor(liveData.qty);
         const badge = document.getElementById(`badge-${def.id}`);
         if (factor > 1) {
@@ -445,21 +446,46 @@
       }
     }
 
-    // Monetization Option 1: Ad Multiplier Loop
+    // Official CrazyGames Reward Deployment
     function watchAd() {
-      const currentWindow = Math.max(Date.now(), state.adMultiplierEnd);
-      state.adMultiplierEnd = currentWindow + (4 * 60 * 60 * 1000); // Append 4 hours
-      updateTickers();
-      saveGame();
-      alert("Thanks for supporting us! Your global operations speed and revenues are DOUBLED for the next 4 hours!");
+      if (!crazyGamesSDK) {
+        // Fallback simulation sequence for local developer verification environments
+        console.log("CrazyGames SDK missing. Triggering test sandbox simulation reward loop.");
+        applyAdReward();
+        alert("TEST SYSTEM WARNING: CrazyGames SDK missing. 4-hour profit boost applied automatically for local testing.");
+        return;
+      }
+
+      // Live Request directly down the network wire
+      crazyGamesSDK.ad.requestAd('rewarded', {
+        adStarted: () => {
+          isAdPlaying = true; // Freezes game engine clocks
+          console.log("CrazyGames rewarded video container launched.");
+        },
+        adFinished: () => {
+          isAdPlaying = false; // Thaws engine loop
+          applyAdReward();
+        },
+        adError: (error) => {
+          isAdPlaying = false; // Emergency engine defrost override
+          console.error("Ad playback execution fault:", error);
+          alert("Ad failed to stream smoothly. Check network connections and try again.");
+        }
+      });
     }
 
-    // Monetization Option 2: Time Warp System Calculations
+    function applyAdReward() {
+      const currentWindow = Math.max(Date.now(), state.adMultiplierEnd);
+      state.adMultiplierEnd = currentWindow + (4 * 60 * 60 * 1000); 
+      toggleShop(false);
+      updateTickers();
+      saveGame();
+    }
+
     function buyTimeWarp(days, diamondCost) {
       if (state.diamonds >= diamondCost) {
         state.diamonds -= diamondCost;
         
-        // Compute passive structural cash generation capacity per frame loop equivalent
         let totalPassiveIncomePerSec = 0;
         state.stages.forEach(liveData => {
           if (liveData.qty > 0 && (liveData.mgrHired || liveData.id === 0)) {
@@ -476,9 +502,9 @@
         
         updateTickers();
         saveGame();
-        alert(`Time Warp activated! Fast-forwarded ${days} day(s) of pipeline construction. Collected $${Math.floor(totalEarned).toLocaleString()} cash payout instantly!`);
+        alert(`Time Warp activated! Fast-forwarded operations by ${days} day(s). Handed over $${Math.floor(totalEarned).toLocaleString()} asset profit!`);
       } else {
-        alert("Insufficent Diamonds! Keep building or reset to get higher yields.");
+        alert("Insufficent Diamonds!");
       }
     }
 
@@ -487,7 +513,7 @@
       if (pending > 0) {
         state.goldenBricks += pending;
         state.prestigeCount++;
-        state.diamonds += 15; // Reward premium coins on milestones to hook players
+        state.diamonds += 15; 
         state.money = 0;
         state.stages = stageDefinitions.map(s => ({
           id: s.id, qty: s.id === 0 ? 1 : 0, mgrHired: false, progress: 0, isActive: false
@@ -531,7 +557,7 @@
 
         if (totalOfflineEarned > 0) {
           const notice = document.getElementById('offlineNotice');
-          notice.innerHTML = `💰 <strong>Welcome back Chief Executive!</strong> While you away, your automated crews cleared pipelines generating <strong>$${Math.floor(totalOfflineEarned).toLocaleString()}</strong> asset profit!`;
+          notice.innerHTML = `💰 <strong>Welcome back Chief Executive!</strong> While you away, your crew cleared pipelines generating <strong>$${Math.floor(totalOfflineEarned).toLocaleString()}</strong> asset profit!`;
           notice.style.display = 'block';
           setTimeout(() => notice.style.display = 'none', 10000);
         }
@@ -546,6 +572,12 @@
       const now = Date.now();
       const deltaTime = now - lastTimestamp;
       lastTimestamp = now;
+
+      // Critical Check: If an ad container is playing, completely freeze processing
+      if (isAdPlaying) {
+        requestAnimationFrame(gameLoop);
+        return;
+      }
 
       state.stages.forEach(liveData => {
         if (liveData.qty > 0 && liveData.isActive) {
@@ -579,7 +611,6 @@
         }
       });
 
-      // Quick background update loop ticker checking for ad timer expiration
       if (Math.floor(now / 1000) % 5 === 0) updateTickers();
 
       requestAnimationFrame(gameLoop);
@@ -596,6 +627,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tycoon Builder: Commercial Empire</title>
+<!-- CrazyGames SDK Initialization -->
+<script src="https://sdk.crazygames.com/crazygames-sdk-v2.js"></script>
 <style>
   :root {
     --bg-main: #0b0f19;
@@ -739,7 +772,6 @@
   button.mgr-btn { background: #475569; color: #cbd5e1; padding: 4px; font-size: 0.65rem; }
   button.mgr-btn.hired { background: var(--gold-prestige); color: #000000; }
 
-  /* Monetized Shop Interface Overlay */
   .shop-modal {
     position: fixed;
     top: 0;
@@ -761,7 +793,6 @@
   .shop-btn.ad { background: #dc2626; color: white; }
   .close-shop { background: #334155; color: white; padding: 8px 16px; }
 
-  /* Navigation Footer Dashboard */
   .nav-panel {
     position: fixed;
     bottom: 0;
@@ -809,10 +840,8 @@
 
   <div id="offlineNotice" class="notice"></div>
 
-  <!-- Main Gameplay Scroll List -->
   <div class="scroll-container" id="stagesList"></div>
 
-  <!-- Premium Monetized Store Interface Overlay -->
   <div id="shopModal" class="shop-modal">
     <div class="shop-header">
       <h2>Premium Head Office Store</h2>
@@ -836,14 +865,13 @@
       <div class="shop-item">
         <div>
           <h3>🚀 Master Blueprint Surge</h3>
-          <p style="font-size:0.75rem; color:var(--text-gray);">Instantly claim 7 Days worth of passive operational cash matching your setup.</p>
+          <p style="font-size:0.75rem; color:var(--text-gray);">Instantly claim 7 Days worth of passive operational cash.</p>
         </div>
         <button class="shop-btn" onclick="buyTimeWarp(7, 100)">Cost: 100 💎</button>
       </div>
     </div>
   </div>
 
-  <!-- Navigation Dashboard Panel -->
   <div class="nav-panel">
     <div class="nav-row" style="font-size: 0.8rem; color: var(--text-gray);">
       <span>Reset Value: <span id="pendingBricks" style="color:var(--gold-prestige); font-weight:bold;">0</span> Bricks</span>
@@ -873,14 +901,22 @@
       money: 0,
       lifetimeEarnings: 0,
       goldenBricks: 0,
-      diamonds: 50, // Premium start bank balance
+      diamonds: 50, 
       prestigeCount: 0,
-      adMultiplierEnd: 0, // Expiration timestamp tracking
+      adMultiplierEnd: 0, 
       lastSaveTime: Date.now(),
       stages: stageDefinitions.map(s => ({
         id: s.id, qty: s.id === 0 ? 1 : 0, mgrHired: false, progress: 0, isActive: false
       }))
     };
+
+    let isAdPlaying = false; // Freeze variable required for CrazyGames ad deployment
+    let crazyGamesSDK = null;
+
+    // Connect and handshake with live CrazyGames infrastructure
+    if (window.CrazyGames && window.CrazyGames.SDK) {
+      crazyGamesSDK = window.CrazyGames.SDK;
+    }
 
     function toggleShop(show) {
       document.getElementById('shopModal').style.display = show ? 'flex' : 'none';
@@ -925,7 +961,6 @@
       });
     }
 
-    // Pro Milestone Math Check: Calculate how many speed doublers are earned
     function getMilestoneSpeedFactor(qty) {
       let speedFactor = 1;
       if (qty >= 25) speedFactor *= 2;
@@ -940,13 +975,12 @@
       if (def.id === 0) {
         duration = def.baseTime * Math.pow(1.10, state.prestigeCount);
       }
-      // Speed up operations by dividing duration by milestone multipliers
       return duration / getMilestoneSpeedFactor(qty);
     }
 
     function getGlobalMultiplier() {
       let m = 1 + (state.goldenBricks * 0.02);
-      if (Date.now() < state.adMultiplierEnd) m *= 2; // Inject 2x ad payout boost
+      if (Date.now() < state.adMultiplierEnd) m *= 2; 
       return m;
     }
 
@@ -962,7 +996,6 @@
       document.getElementById('pendingBricks').innerText = pending.toLocaleString();
       document.getElementById('prestigeBtn').disabled = pending === 0;
 
-      // Handle monetization ad window visibility structures
       const adActive = Date.now() < state.adMultiplierEnd;
       document.getElementById('adBadge').style.display = adActive ? 'inline-block' : 'none';
       if (adActive) {
@@ -984,7 +1017,6 @@
         document.getElementById(`buy-${def.id}`).innerText = `Buy: $${currentCost.toLocaleString()}`;
         document.getElementById(`buy-${def.id}`).disabled = state.money < currentCost;
         
-        // Handle milestone label outputs
         const factor = getMilestoneSpeedFactor(liveData.qty);
         const badge = document.getElementById(`badge-${def.id}`);
         if (factor > 1) {
@@ -1037,21 +1069,46 @@
       }
     }
 
-    // Monetization Option 1: Ad Multiplier Loop
+    // Official CrazyGames Reward Deployment
     function watchAd() {
-      const currentWindow = Math.max(Date.now(), state.adMultiplierEnd);
-      state.adMultiplierEnd = currentWindow + (4 * 60 * 60 * 1000); // Append 4 hours
-      updateTickers();
-      saveGame();
-      alert("Thanks for supporting us! Your global operations speed and revenues are DOUBLED for the next 4 hours!");
+      if (!crazyGamesSDK) {
+        // Fallback simulation sequence for local developer verification environments
+        console.log("CrazyGames SDK missing. Triggering test sandbox simulation reward loop.");
+        applyAdReward();
+        alert("TEST SYSTEM WARNING: CrazyGames SDK missing. 4-hour profit boost applied automatically for local testing.");
+        return;
+      }
+
+      // Live Request directly down the network wire
+      crazyGamesSDK.ad.requestAd('rewarded', {
+        adStarted: () => {
+          isAdPlaying = true; // Freezes game engine clocks
+          console.log("CrazyGames rewarded video container launched.");
+        },
+        adFinished: () => {
+          isAdPlaying = false; // Thaws engine loop
+          applyAdReward();
+        },
+        adError: (error) => {
+          isAdPlaying = false; // Emergency engine defrost override
+          console.error("Ad playback execution fault:", error);
+          alert("Ad failed to stream smoothly. Check network connections and try again.");
+        }
+      });
     }
 
-    // Monetization Option 2: Time Warp System Calculations
+    function applyAdReward() {
+      const currentWindow = Math.max(Date.now(), state.adMultiplierEnd);
+      state.adMultiplierEnd = currentWindow + (4 * 60 * 60 * 1000); 
+      toggleShop(false);
+      updateTickers();
+      saveGame();
+    }
+
     function buyTimeWarp(days, diamondCost) {
       if (state.diamonds >= diamondCost) {
         state.diamonds -= diamondCost;
         
-        // Compute passive structural cash generation capacity per frame loop equivalent
         let totalPassiveIncomePerSec = 0;
         state.stages.forEach(liveData => {
           if (liveData.qty > 0 && (liveData.mgrHired || liveData.id === 0)) {
@@ -1068,9 +1125,9 @@
         
         updateTickers();
         saveGame();
-        alert(`Time Warp activated! Fast-forwarded ${days} day(s) of pipeline construction. Collected $${Math.floor(totalEarned).toLocaleString()} cash payout instantly!`);
+        alert(`Time Warp activated! Fast-forwarded operations by ${days} day(s). Handed over $${Math.floor(totalEarned).toLocaleString()} asset profit!`);
       } else {
-        alert("Insufficent Diamonds! Keep building or reset to get higher yields.");
+        alert("Insufficent Diamonds!");
       }
     }
 
@@ -1079,7 +1136,7 @@
       if (pending > 0) {
         state.goldenBricks += pending;
         state.prestigeCount++;
-        state.diamonds += 15; // Reward premium coins on milestones to hook players
+        state.diamonds += 15; 
         state.money = 0;
         state.stages = stageDefinitions.map(s => ({
           id: s.id, qty: s.id === 0 ? 1 : 0, mgrHired: false, progress: 0, isActive: false
@@ -1109,17 +1166,3 @@
           if (liveData.mgrHired && liveData.qty > 0) {
             const def = stageDefinitions[liveData.id];
             const cycleTimeMs = getDuration(def, liveData.qty) * 10; 
-            const completions = Math.floor(offlineMs / cycleTimeMs);
-            const calculatedRev = def.baseRevenue * liveData.qty * getGlobalMultiplier();
-            
-            if (completions > 0) {
-              const earned = completions * calculatedRev;
-              totalOfflineEarned += earned;
-              state.money += earned;
-              state.lifetimeEarnings += earned;
-            }
-          }
-        });
-
-        if (totalOfflineEarned > 0) {
-          const notice = document.getElementById('offlineNotic
