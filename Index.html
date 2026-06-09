@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idle Constructor Pro</title>
+<title>Idle Constructor - Crew Management</title>
 <style>
   :root {
     --bg-dark: #121214;
@@ -11,6 +11,7 @@
     --panel-border: #2d2d34;
     --accent-blue: #38bdf8;
     --accent-green: #4ade80;
+    --accent-orange: #fb923c;
     --text-main: #f4f4f5;
     --text-muted: #a1a1aa;
   }
@@ -26,22 +27,22 @@
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
+    user-select: none;
   }
 
   header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     width: 100%;
     max-width: 450px;
   }
 
   h1 { 
-    font-size: 1.8rem; 
+    font-size: 1.6rem; 
     font-weight: 800;
-    letter-spacing: -0.05em;
     color: #ffffff;
     text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    letter-spacing: -0.02em;
   }
 
   .global-tick-container {
@@ -57,7 +58,6 @@
     width: 0%;
     height: 100%;
     background: var(--accent-blue);
-    transition: width 0.1s linear;
   }
 
   .dashboard { 
@@ -72,114 +72,169 @@
     background: var(--panel-bg); 
     border: 1px solid var(--panel-border);
     padding: 20px; 
-    border-radius: 12px; 
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-radius: 16px; 
+    position: relative;
   }
 
   .resource-display {
     text-align: center;
-    padding: 10px 0;
+    padding-bottom: 10px;
   }
 
   .resource-label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
   .resource-val {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: 800;
     color: var(--accent-blue);
     font-family: monospace;
-    margin: 5px 0;
+    margin: 2px 0;
   }
 
-  .resource-rate {
-    font-size: 0.9rem;
-    color: var(--accent-green);
-  }
-
-  .upgrade-row {
+  .stats-row {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 10px;
+    justify-content: space-around;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: #222227;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 15px;
   }
 
-  .upgrade-card {
+  .stat-v { color: var(--accent-green); font-weight: bold; }
+  .stat-o { color: var(--accent-orange); font-weight: bold; }
+
+  /* Clicker Area & Animations */
+  .click-box {
+    position: relative;
+    width: 100%;
     background: #222227;
-    border: 1px solid #2d2d34;
-    border-radius: 8px;
+    border: 2px dashed #3f3f46;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    cursor: pointer;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  .axe-icon {
+    font-size: 3rem;
+    display: inline-block;
+    transition: transform 0.05s ease;
+  }
+
+  /* Animation: Axe Swing */
+  .swinging {
+    animation: swing 0.12s ease-in-out;
+  }
+
+  @keyframes swing {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(-25deg) scale(1.1); }
+    100% { transform: rotate(0deg) scale(1); }
+  }
+
+  /* Animation: Floating Text */
+  .floating-text {
+    position: absolute;
+    color: var(--accent-green);
+    font-weight: 800;
+    font-size: 1.2rem;
+    pointer-events: none;
+    animation: floatUp 0.6s ease-out forwards;
+    font-family: monospace;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-60px) scale(0.8); opacity: 0; }
+  }
+
+  /* Characters List */
+  .section-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .card {
+    background: #222227;
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
     padding: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 10px;
   }
 
-  .upgrade-info h3 {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #ffffff;
+  .character-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
-  .upgrade-info p {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 2px;
+  .avatar {
+    font-size: 2.2rem;
+    background: #1a1a1e;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
   }
 
-  button { 
-    background: #27272a; 
-    color: white; 
-    border: 1px solid #3f3f46;
-    padding: 12px 20px; 
-    cursor: pointer; 
-    border-radius: 8px; 
-    font-weight: 700;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
+  /* Animation: Character Idle Bounce */
+  .bouncing-avatar {
+    animation: idleBounce 1.5s infinite ease-in-out;
   }
 
-  button.action-btn {
-    background: var(--accent-blue);
-    color: #000000;
-    border: none;
-    width: 100%;
-    font-size: 1rem;
-    padding: 14px;
-    margin-top: 10px;
-    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+  @keyframes idleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
   }
 
-  button.action-btn:active {
-    transform: scale(0.98);
-    background: #0ea5e9;
-  }
+  .info h3 { font-size: 0.95rem; color: #ffffff; }
+  .info p { font-size: 0.8rem; color: var(--text-muted); }
 
   button.buy-btn {
     background: transparent;
     color: var(--accent-green);
     border: 1px solid var(--accent-green);
-    min-width: 90px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
   }
 
-  button.buy-btn:disabled { 
-    background: transparent; 
-    color: #4e4e54; 
+  button.buy-btn:disabled {
+    color: #4e4e54;
     border-color: #2d2d34;
-    cursor: not-allowed; 
   }
 
-  button.buy-btn:not(:disabled):active {
-    background: rgba(74, 222, 128, 0.1);
+  button.buy-manager {
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+  }
+
+  button.buy-manager:disabled {
+    color: #4e4e54;
+    border-color: #2d2d34;
   }
 
   .notice {
     background: #1e293b;
-    border: 1px solid #38bdf8;
+    border: 1px solid var(--accent-blue);
     color: #f8fafc;
     padding: 12px;
     font-size: 0.85rem;
@@ -195,7 +250,7 @@
 <body>
 
   <header>
-    <h1>Idle Constructor</h1>
+    <h1>Idle Crew Chief</h1>
     <div class="global-tick-container">
       <div id="globalTickBar"></div>
     </div>
@@ -207,32 +262,61 @@
     
     <div class="panel">
       <div class="resource-display">
-        <div class="resource-label">Available Lumber</div>
+        <div class="resource-label">Total Logs Managed</div>
         <div id="wood" class="resource-val">0</div>
-        <div class="resource-rate">+<span id="wps">0</span> / sec</div>
       </div>
-      <button class="action-btn" onclick="chopWood()">🪓 Swing Axe</button>
+      
+      <div class="stats-row">
+        <div>Crew: <span id="wps" class="stat-v">+0</span>/s</div>
+        <div>Auto-Clickers: <span id="cps" class="stat-o">0</span>/s</div>
+      </div>
+
+      <div class="click-box" id="clickArea">
+        <div class="axe-icon" id="axeEmoji">🪓</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; text-transform: uppercase;">Tap to Harvest</div>
+      </div>
     </div>
 
     <div class="panel">
-      <div style="margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Infrastructure</div>
+      <div class="section-title">Active Crew Members</div>
       
-      <div class="upgrade-row">
-        <div class="upgrade-card">
-          <div class="upgrade-info">
-            <h3>Lumber Camp (<span id="campCount">0</span>)</h3>
-            <p>Cost: <span id="campCost">10</span> Wood</p>
+      <div class="card">
+        <div class="character-profile">
+          <div class="avatar bouncing-avatar" style="animation-delay: 0s;">👦</div>
+          <div class="info">
+            <h3>Charlie (Apprentice)</h3>
+            <p>Count: <span id="countC">0</span> | +1 log/s</p>
+            <p style="color: var(--text-muted);">Cost: <span id="costC">10</span></p>
           </div>
-          <button id="btnCamp" class="buy-btn" onclick="buyCamp()">Build</button>
         </div>
+        <button id="btnC" class="buy-btn" onclick="buyCharlie()">Hire</button>
+      </div>
 
-        <div class="upgrade-card">
-          <div class="upgrade-info">
-            <h3>Sawmill (<span id="millCount">0</span>)</h3>
-            <p>Cost: <span id="millCost">50</span> Wood</p>
+      <div class="card">
+        <div class="character-profile">
+          <div class="avatar bouncing-avatar" style="animation-delay: 0.4s;">👩‍🎤</div>
+          <div class="info">
+            <h3>Sally (Master Logger)</h3>
+            <p>Count: <span id="countS">0</span> | +5 logs/s</p>
+            <p style="color: var(--text-muted);">Cost: <span id="costS">50</span></p>
           </div>
-          <button id="btnMill" class="buy-btn" onclick="buyMill()">Build</button>
         </div>
+        <button id="btnS" class="buy-btn" onclick="buySally()">Hire</button>
+      </div>
+
+      <div class="section-title" style="margin-top: 15px;">Management / Automation</div>
+
+      <div class="card">
+        <div class="character-profile">
+          <div class="avatar" id="managerAvatar">👴</div>
+          <div class="info">
+            <h3>Foreman Frank</h3>
+            <p>Count: <span id="countF">0</span></p>
+            <p style="color: var(--accent-orange);">Auto-clicks 2x every second!</p>
+            <p style="color: var(--text-muted);">Cost: <span id="costF">200</span></p>
+          </div>
+        </div>
+        <button id="btnF" class="buy-btn buy-manager" onclick="buyForeman()">Appoint</button>
       </div>
 
     </div>
@@ -240,107 +324,165 @@
   </div>
 
   <script>
+    // Game State Setup
     let state = {
       wood: 0,
-      wps: 0,
-      camps: 0,
-      campCost: 10,
-      mills: 0,
-      millCost: 50,
+      wps: 0, // Crew passive production
+      charlies: 0, costC: 10,
+      sallies: 0, costS: 50,
+      foremen: 0, costF: 200,
       lastSaveTime: Date.now()
     };
 
     function updateUI() {
       document.getElementById('wood').innerText = Math.floor(state.wood).toLocaleString();
-      document.getElementById('wps').innerText = state.wps;
-      
-      document.getElementById('campCount').innerText = state.camps;
-      document.getElementById('campCost').innerText = state.campCost;
-      document.getElementById('btnCamp').disabled = state.wood < state.campCost;
+      document.getElementById('wps').innerText = `+${state.wps}`;
+      document.getElementById('cps').innerText = state.foremen * 2;
 
-      document.getElementById('millCount').innerText = state.mills;
-      document.getElementById('millCost').innerText = state.millCost;
-      document.getElementById('btnMill').disabled = state.wood < state.millCost;
+      // Update Crew Cards
+      document.getElementById('countC').innerText = state.charlies;
+      document.getElementById('costC').innerText = state.costC;
+      document.getElementById('btnC').disabled = state.wood < state.costC;
+
+      document.getElementById('countS').innerText = state.sallies;
+      document.getElementById('costS').innerText = state.costS;
+      document.getElementById('btnS').disabled = state.wood < state.costS;
+
+      // Update Manager Card
+      document.getElementById('countF').innerText = state.foremen;
+      document.getElementById('costF').innerText = state.costF;
+      document.getElementById('btnF').disabled = state.wood < state.costF;
+      
+      // Make manager avatar dance if active
+      if(state.foremen > 0) {
+        document.getElementById('managerAvatar').classList.add('bouncing-avatar');
+      }
     }
 
-    function chopWood() {
+    // Manual Click Mechanic
+    const clickArea = document.getElementById('clickArea');
+    clickArea.addEventListener('click', (e) => {
       state.wood += 1;
+      
+      // Trigger Axe swing animation
+      const axe = document.getElementById('axeEmoji');
+      axe.classList.remove('swinging');
+      void axe.offsetWidth; // Reset animation
+      axe.classList.add('swinging');
+
+      // Create floating number directly where finger tapped
+      const rect = clickArea.getBoundingClientRect();
+      const x = e.clientX ? (e.clientX - rect.left) : (rect.width / 2);
+      const y = e.clientY ? (e.clientY - rect.top) : (rect.height / 2);
+      popText("+1", x, y);
+
       updateUI();
       saveGame();
+    });
+
+    function popText(txt, x, y) {
+      const p = document.createElement('div');
+      p.className = 'floating-text';
+      p.innerText = txt;
+      p.style.left = `${x}px`;
+      p.style.top = `${y}px`;
+      clickArea.appendChild(p);
+      setTimeout(() => p.remove(), 600);
     }
 
-    function buyCamp() {
-      if (state.wood >= state.campCost) {
-        state.wood -= state.campCost;
-        state.camps += 1;
+    // Purchase Logic
+    function buyCharlie() {
+      if (state.wood >= state.costC) {
+        state.wood -= state.costC;
+        state.charlies++;
         state.wps += 1;
-        state.campCost = Math.floor(state.campCost * 1.5);
-        updateUI();
-        saveGame();
+        state.costC = Math.floor(state.costC * 1.4);
+        updateUI(); saveGame();
       }
     }
 
-    function buyMill() {
-      if (state.wood >= state.millCost) {
-        state.wood -= state.millCost;
-        state.mills += 1;
+    function buySally() {
+      if (state.wood >= state.costS) {
+        state.wood -= state.costS;
+        state.sallies++;
         state.wps += 5;
-        state.millCost = Math.floor(state.millCost * 1.5);
-        updateUI();
-        saveGame();
+        state.costS = Math.floor(state.costS * 1.4);
+        updateUI(); saveGame();
       }
     }
 
+    function buyForeman() {
+      if (state.wood >= state.costF) {
+        state.wood -= state.costF;
+        state.foremen++;
+        state.costF = Math.floor(state.costF * 1.6);
+        updateUI(); saveGame();
+      }
+    }
+
+    // Save & Load Progress (Fridge Box)
     function saveGame() {
       state.lastSaveTime = Date.now();
-      localStorage.setItem('idleConstructorSavePro', JSON.stringify(state));
+      localStorage.setItem('idleCrewChiefSave', JSON.stringify(state));
     }
 
     function loadGame() {
-      const savedData = localStorage.getItem('idleConstructorSavePro');
-      if (savedData) {
-        state = JSON.parse(savedData);
+      const saved = localStorage.getItem('idleCrewChiefSave');
+      if (saved) {
+        state = JSON.parse(saved);
         
+        // Calculate Offline Earnings (Including Crew + Automated Management clicks)
         const now = Date.now();
-        const offlineSeconds = Math.floor((now - state.lastSaveTime) / 1000);
-        const offlineWood = offlineSeconds * state.wps;
+        const totalOfflineSeconds = Math.floor((now - state.lastSaveTime) / 1000);
         
-        if (offlineWood > 0) {
-          state.wood += offlineWood;
-          const noticeEl = document.getElementById('offlineNotice');
-          noticeEl.innerText = `📦 While you were away, your operations generated ${offlineWood.toLocaleString()} wood.`;
-          noticeEl.style.display = 'block';
-          setTimeout(() => { noticeEl.style.display = 'none'; }, 6000);
+        const totalPassiveRate = state.wps + (state.foremen * 2); // Crew production + Auto-Clicks
+        const earnings = totalOfflineSeconds * totalPassiveRate;
+        
+        if (earnings > 0) {
+          state.wood += earnings;
+          const notice = document.getElementById('offlineNotice');
+          notice.innerHTML = `💼 <strong>Welcome back Chief!</strong> Your crew and managers earned <strong>${earnings.toLocaleString()}</strong> logs while you were offline.`;
+          notice.style.display = 'block';
+          setTimeout(() => { notice.style.display = 'none'; }, 8000);
         }
       }
       updateUI();
     }
 
-    // Smooth Progress Bar Animation Engine
+    // Main Game Engine Loop
     let lastTick = Date.now();
-    function runVisualEngine() {
+    function runGameEngine() {
       const now = Date.now();
       const elapsed = now - lastTick;
       
-      // Calculate percentage of the current 1-second interval
-      const pct = (elapsed % 1000) / 10;
-      document.getElementById('globalTickBar').style.width = `${pct}%`;
+      // Update visual ticker bar smoothly
+      document.getElementById('globalTickBar').style.width = `${(elapsed % 1000) / 10}%`;
       
-      // Trigger actual resource allocation every time 1 full second passes
       if (elapsed >= 1000) {
         const secondsPassed = Math.floor(elapsed / 1000);
-        state.wood += (state.wps * secondsPassed);
-        lastTick = now - (elapsed % 1000); // Carry over leftover milliseconds
+        
+        // Add Wood: Crew Progress + Management Progress combined!
+        const generationPerSecond = state.wps + (state.foremen * 2);
+        state.wood += (generationPerSecond * secondsPassed);
+        
+        // Minor visual feedback for automation
+        if(state.foremen > 0) {
+          const axe = document.getElementById('axeEmoji');
+          axe.classList.remove('swinging');
+          void axe.offsetWidth;
+          axe.classList.add('swinging');
+        }
+
+        lastTick = now - (elapsed % 1000);
         updateUI();
         saveGame();
       }
       
-      requestAnimationFrame(runVisualEngine);
+      requestAnimationFrame(runGameEngine);
     }
 
     loadGame();
-    // Start the game loop
-    requestAnimationFrame(runVisualEngine);
+    requestAnimationFrame(runGameEngine);
   </script>
 </body>
 </html>
