@@ -375,3 +375,250 @@
         let hrs = Math.floor(diff / 3600000);
         let mins = Math.floor((diff % 3600000) / 60000);
         document.getElementById('adTimerDisplay').innerText = `Ad Boost: ${hrs}h ${mins}m left`;
+      } else {
+        document.getElementById('adTimerDisplay').innerText = "No Boost Active";
+      }
+
+      stageDefinitions.forEach(def => {
+        const liveData = state.stages[def.id];
+        const currentCost = Math.floor(def.baseCost * Math.pow(1.15, liveData.qty));
+        const calculatedRev = def.baseRevenue * liveData.qty * globalMult;
+        
+        document.getElementById(`qty-${def.id}`).innerText = liveData.qty;
+        document.getElementById(`rev-${def.id}`).innerText = `$${Math.floor(calculatedRev).toLocaleString()}`;
+        document.getElementById(`buy-${def.id}`).innerText = `Buy: $${currentCost.toLocaleString()}`;
+        document.getElementById(`buy-${def.id}`).disabled = state.money < currentCost;
+        
+        const factor = getMilestoneSpeedFactor(liveData.qty);
+        const badge = document.getElementById(`badge-${def.id}`);
+        if (factor > 1) {
+          badge.style.display = "inline-block";
+          badge.innerText = `${factor}x Speed`;
+        } else {
+          badge.style.display = "none";
+        }
+
+        const mgrBtn = document.getElementById(`mgr-${def.id}`);
+        if (!liveData.mgrHired) {
+          mgrBtn.disabled = state.money < (def.baseCost * 15) || liveData.qty === 0;
+          mgrBtn.innerText = `Mgr: $${Math.floor(def.baseCost * 15).toLocaleString()}`;
+        } else {
+          mgrBtn.innerText = "Automated";
+        }
+      });
+    }
+
+    function startStage(id) {
+      const liveData = state.stages[id];
+      if (liveData.qty > 0 && !liveData.isActive && !liveData.mgrHired) {
+        liveData.isActive = true;
+        liveData.progress = 0;
+      }
+    }
+
+    function buyStage(id) {
+      const def = stageDefinitions[id];
+      const currentCost = Math.floor(def.baseCost * Math.pow(1.15, state.stages[id].qty));
+      if (state.money >= currentCost) {
+        state.money -= currentCost;
+        state.stages[id].qty++;
+        updateTickers();
+        saveGame();
+      }
+    }
+
+    function buyManager(id) {
+      const def = stageDefinitions[id];
+      const liveData = state.stages[id];
+      const mgrCost = def.baseCost * 15;
+      if (!liveData.mgrHired && state.money >= mgrCost && liveData.qty > 0) {
+        state.money -= mgrCost;
+        liveData.mgrHired = true;
+        liveData.isActive = true;
+        document.getElementById(`mgr-${id}`).classList.add('hired');
+        updateTickers();
+        saveGame();
+      }
+    }
+
+    function watchAd() {
+      const isLiveEnvironment = crazyGamesSDK && crazyGamesSDK.environment === 'crazygames';
+      
+      if (!isLiveEnvironment) {
+        const env = crazyGamesSDK ? crazyGamesSDK.environment : 'missing';
+        console.log(`Bypassing live network. Environment status: [${env}]. Running staging simulator.`);
+        applyAdReward();
+        
+        if (env === 'disabled') {
+          alert("STAGING NOTICE: Running on an external preview site. 4-Hour Profit Boost applied via local simulator.");
+        } else if (env === 'local') {
+          alert("LOCAL TEST: Localhost environment detected. 4-Hour Profit Boost applied via sandbox simulator.");
+        } else {
+          alert("TEST SYSTEM: CrazyGames SDK script not found. 4-Hour Profit Boost applied.");
+        }
+        return;
+      }
+
+      crazyGamesSDK.ad.requestAd('rewarded', {
+        adStarted: () => {
+          isAdPlaying = true; 
+          console.log("CrazyGames rewarded video container launched.");
+        },
+        adFinished: () => {
+          isAdPlaying = false; 
+          applyAdReward();
+        },
+        adError: (error) => {
+          isAdPlaying = false; 
+          console.error("Ad playback execution fault:", error);
+          alert("Ad failed to stream smoothly. Check network connections and try again.");
+        }
+      });
+    }
+
+    function applyAdReward() {
+      const currentWindow = Math.max(Date.now(), state.adMultiplierEnd);
+      state.adMultiplierEnd = currentWindow + (4 * 60 * 60 * 1000); 
+      toggleShop(false);
+      updateTickers();
+      saveGame();
+    }
+
+    function buyTimeWarp(days, diamondCost) {
+      if (state.diamonds >= diamondCost) {
+        state.diamonds -= diamondCost;
+        
+        let totalPassiveIncomePerSec = 0;
+        state.stages.forEach(liveData => {
+          if (liveData.qty > 0 && (liveData.mgrHired || liveData.id === 0)) {
+            const def = stageDefinitions[liveData.id];
+            const durationSec = getDuration(def, liveData.qty) / 10;
+            const revPerSec = (def.baseRevenue * liveData.qty * getGlobalMultiplier()) / durationSec;
+            totalPassiveIncomePerSec += revPerSec;
+          }
+        });
+
+        const totalEarned = totalPassiveIncomePerSec * (days * 24 * 60 * 60);
+        state.money += totalEarned;
+        state.lifetimeEarnings += totalEarned;
+        
+        updateTickers();
+        saveGame();
+        alert(`Time Warp activated! Fast-forwarded operations by ${days} day(s). Handed over $${Math.floor(totalEarned).toLocaleString()} asset profit!`);
+      } else {
+        alert("Insufficent Diamonds!");
+      }
+    }
+
+    function triggerPrestige() {
+      let pending = Math.floor(150 * Math.sqrt(state.lifetimeEarnings / 1000000)) - state.goldenBricks;
+      if (pending > 0) {
+        state.goldenBricks += pending;
+        state.prestigeCount++;
+        state.diamonds += 15; 
+        state.money = 0;
+        state.stages = stageDefinitions.map(s => ({
+          id: s.id, qty: s.id === 0 ? 1 : 0, mgrHired: false, progress: 0, isActive: false
+        }));
+        generateUI();
+        updateTickers();
+        saveGame();
+      }
+    }
+
+    function saveGame() {
+      state.lastSaveTime = Date.now();
+      localStorage.setItem('commercialEmpireSave', JSON.stringify(state));
+    }
+
+    function loadGame() {
+      const saved = localStorage.getItem('commercialEmpireSave');
+      if (saved) {
+        state = JSON.parse(saved);
+        generateUI();
+        
+        const now = Date.now();
+        const offlineMs = now - state.lastSaveTime;
+        let totalOfflineEarned = 0;
+
+        state.stages.forEach(liveData => {
+          if (liveData.mgrHired && liveData.qty > 0) {
+            const def = stageDefinitions[liveData.id];
+            const cycleTimeMs = getDuration(def, liveData.qty) * 10; 
+            const completions = Math.floor(offlineMs / cycleTimeMs);
+            const calculatedRev = def.baseRevenue * liveData.qty * getGlobalMultiplier();
+            
+            if (completions > 0) {
+              const earned = completions * calculatedRev;
+              totalOfflineEarned += earned;
+              state.money += earned;
+              state.lifetimeEarnings += earned;
+            }
+          }
+        });
+
+        if (totalOfflineEarned > 0) {
+          const notice = document.getElementById('offlineNotice');
+          notice.innerHTML = `💰 <strong>Welcome back Chief Executive!</strong> While you away, your crew cleared pipelines generating <strong>$${Math.floor(totalOfflineEarned).toLocaleString()}</strong> asset profit!`;
+          notice.style.display = 'block';
+          setTimeout(() => notice.style.display = 'none', 10000);
+        }
+      } else {
+        generateUI();
+      }
+      updateTickers();
+    }
+
+    let lastTimestamp = Date.now();
+    function gameLoop() {
+      const now = Date.now();
+      const deltaTime = now - lastTimestamp;
+      lastTimestamp = now;
+
+      if (isAdPlaying) {
+        requestAnimationFrame(gameLoop);
+        return;
+      }
+
+      state.stages.forEach(liveData => {
+        if (liveData.qty > 0 && liveData.isActive) {
+          const def = stageDefinitions[liveData.id];
+          const duration = getDuration(def, liveData.qty);
+          
+          liveData.progress += (deltaTime / 10);
+          
+          const fillEl = document.getElementById(`fill-${def.id}`);
+          const timeEl = document.getElementById(`time-${def.id}`);
+          
+          let pct = (liveData.progress / duration) * 100;
+          if (pct >= 100) {
+            const calculatedRev = def.baseRevenue * liveData.qty * getGlobalMultiplier();
+            state.money += calculatedRev;
+            state.lifetimeEarnings += calculatedRev;
+            updateTickers();
+
+            if (liveData.mgrHired) {
+              liveData.progress = 0; 
+            } else {
+              liveData.progress = 0;
+              liveData.isActive = false;
+              pct = 0;
+            }
+            saveGame();
+          }
+          
+          if (fillEl) fillEl.style.width = `${pct}%`;
+          if (timeEl) timeEl.innerText = `${Math.max(0, ((duration - liveData.progress)/100).toFixed(1))}s`;
+        }
+      });
+
+      if (Math.floor(now / 1000) % 5 === 0) updateTickers();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    loadGame();
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
