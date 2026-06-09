@@ -41,7 +41,7 @@
   }
 
   .main-money {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 900;
     color: var(--money-green);
     font-family: monospace;
@@ -60,57 +60,59 @@
     border: 1px solid var(--border-color);
   }
 
-  .ad-multiplier-badge {
-    background: #dc2626;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    margin-top: 5px;
-    display: inline-block;
-  }
-
+  /* Core container fix to force items to show up sequentially */
   .scroll-container {
     width: 100%;
     max-width: 480px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-bottom: 180px;
-    margin-top: 10px;
+    display: block; /* Force regular block layout instead of broken flex */
+    margin-top: 15px;
+    padding-bottom: 160px; /* High padding ensures bottom levels aren't hidden by nav panel */
   }
 
   .stage-card {
     background: var(--panel-bg);
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    padding: 8px;
+    padding: 10px;
     display: flex;
     align-items: center;
     gap: 10px;
     position: relative;
+    margin-bottom: 12px; /* Force separation between levels */
+    min-height: 70px;
     overflow: hidden;
   }
 
   .stage-icon-box {
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     background: #1e293b;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     z-index: 2;
     cursor: pointer;
     border: 2px solid #334155;
+    flex-shrink: 0;
   }
-  .stage-qty { font-size: 0.7rem; font-weight: bold; color: var(--text-gray); }
+  .stage-qty { 
+    font-size: 0.75rem; 
+    font-weight: 800; 
+    color: #000000; 
+    background: var(--gold-prestige);
+    padding: 1px 4px;
+    border-radius: 4px;
+    margin-top: 2px;
+    min-width: 24px;
+    text-align: center;
+  }
 
   .progress-track {
     flex-grow: 1;
-    height: 50px;
+    height: 55px;
     background: #0f172a;
     border-radius: 8px;
     position: relative;
@@ -133,48 +135,43 @@
     z-index: -1;
   }
 
-  .stage-name { font-size: 0.9rem; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-  .milestone-badge { font-size: 0.65rem; background: var(--gold-prestige); color: black; padding: 1px 4px; border-radius: 4px; }
-  .stage-revenue { font-size: 0.85rem; color: var(--money-green); font-family: monospace; }
-  .stage-timer { position: absolute; right: 10px; font-size: 0.75rem; color: var(--text-gray); font-family: monospace; }
+  .stage-name { 
+    font-size: 0.9rem; 
+    font-weight: bold; 
+    display: flex; 
+    align-items: center; 
+    gap: 5px; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+  }
+  
+  .level-badge {
+    font-size: 0.7rem;
+    background: #334155;
+    color: var(--text-white);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: normal;
+  }
 
-  .action-buttons { display: flex; flex-direction: column; gap: 4px; z-index: 2; }
+  .stage-revenue { font-size: 0.85rem; color: var(--money-green); font-family: monospace; font-weight: bold; }
+  .stage-timer { position: absolute; right: 10px; bottom: 6px; font-size: 0.75rem; color: var(--text-gray); font-family: monospace; }
 
-  button { border: none; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: all 0.1s ease; position: relative; }
+  .action-buttons { display: flex; flex-direction: column; gap: 4px; z-index: 2; flex-shrink: 0; }
+
+  button { border: none; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: all 0.1s ease; }
   button:active { transform: scale(0.95); }
-  button.buy-btn { background: #0284c7; color: white; padding: 6px 12px; width: 85px; }
+  
+  button.buy-btn { background: #0284c7; color: white; padding: 8px 6px; width: 95px; font-size: 0.7rem; }
   button.buy-btn:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
   button.mgr-btn { background: #475569; color: #cbd5e1; padding: 4px; font-size: 0.65rem; }
   button.mgr-btn.hired { background: var(--gold-prestige); color: #000000; }
-
-  .shop-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(11, 15, 25, 0.98);
-    z-index: 200;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    overflow-y: auto;
-  }
-  .shop-header { width: 100%; max-width: 440px; display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
-  .shop-grid { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 40px; }
-  .shop-section-title { font-size: 1rem; color: var(--text-gray); border-bottom: 1px solid var(--border-color); padding-bottom: 4px; margin-top: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;}
-  .shop-item { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .shop-btn { background: var(--diamond-blue); color: black; padding: 8px 12px; font-size: 0.8rem; min-width: 110px; text-align: center; }
-  .shop-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
-  .close-shop { background: #334155; color: white; padding: 8px 16px; }
 
   .nav-panel {
     position: fixed;
     bottom: 0;
     width: 100%;
     max-width: 480px;
-    background: rgba(21, 31, 50, 0.95);
+    background: rgba(21, 31, 50, 0.98);
     border-top: 2px solid var(--border-color);
     padding: 12px;
     display: flex;
@@ -195,14 +192,32 @@
     padding: 10px; font-size: 0.8rem; border-radius: 8px; margin-bottom: 10px;
     text-align: center; width: 100%; max-width: 480px; display: none;
   }
+
+  .shop-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(11, 15, 25, 0.98);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  .shop-header { width: 100%; max-width: 440px; display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+  .shop-grid { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; }
+  .shop-item { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .shop-btn { background: var(--diamond-blue); color: black; padding: 8px 12px; font-size: 0.8rem; }
+  .close-shop { background: #334155; color: white; padding: 8px 16px; }
 </style>
 </head>
 <body>
 
   <header>
-    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-gray);">Liquid Assets</div>
+    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-gray); letter-spacing: 1px;">Liquid Assets</div>
     <div id="displayMoney" class="main-money">$0</div>
-    <div id="adBadge" class="ad-multiplier-badge" style="display: none;">PROFIT SPEED AD ACTIVE: 2x</div>
     
     <div class="stats-bar">
       <span style="color: var(--gold-prestige)">🧱 <span id="displayBricks">0</span> Bricks</span>
@@ -221,20 +236,12 @@
       <button class="close-shop" onclick="toggleShop(false)">Back</button>
     </div>
     <div class="shop-grid">
-      <div class="shop-section-title">Premium Equity (Diamonds)</div>
       <div class="shop-item">
         <div>
-          <h3>⏱️ 1-Day Permit Fast-Forward</h3>
-          <p style="font-size:0.75rem; color:var(--text-gray);">Instantly collect 24 hours of total passive income.</p>
+          <h3>⏱️ 1-Day Permit Forward</h3>
+          <p style="font-size:0.75rem; color:var(--text-gray);">Collect 24 hours of total passive income.</p>
         </div>
         <button class="shop-btn" onclick="buyTimeWarp(1, 25)">Cost: 25 💎</button>
-      </div>
-      <div class="shop-item">
-        <div>
-          <h3>🚀 7-Day Venture Capital Surge</h3>
-          <p style="font-size:0.75rem; color:var(--text-gray);">Instantly collect 7 days of total passive income.</p>
-        </div>
-        <button class="shop-btn" onclick="buyTimeWarp(7, 100)">Cost: 100 💎</button>
       </div>
     </div>
   </div>
@@ -242,7 +249,6 @@
   <div class="nav-panel">
     <div class="nav-row" style="font-size: 0.8rem; color: var(--text-gray);">
       <span>Pending: <span id="pendingBricks" style="color:var(--gold-prestige); font-weight:bold;">0</span> Bricks</span>
-      <span id="adTimerDisplay">No Boost Active</span>
     </div>
     <div class="nav-buttons">
       <button class="btn-shop-toggle" onclick="toggleShop(true)">🛒 Store</button>
@@ -271,9 +277,7 @@
       goldenBricks: 0,
       diamonds: 50, 
       prestigeCount: 0,
-      adMultiplierEnd: 0, 
       lastSaveTime: Date.now(),
-      upgrades: { usdSpeedLv: 0, brickMasteryLv: 0, brickPenaltyLv: 0, permDoubleRevenue: false, permDoubleSpeed: false },
       stages: stageDefinitions.map(s => ({ id: s.id, qty: s.id === 0 ? 1 : 0, mgrHired: false, progress: 0, isActive: false }))
     };
 
@@ -286,7 +290,7 @@
       if (!listEl) return;
       listEl.innerHTML = '';
       
-      stageDefinitions.forEach(def => {
+      stageDefinitions.forEach((def, index) => {
         const liveData = state.stages.find(s => s.id === def.id) || { qty: def.id === 0 ? 1 : 0, mgrHired: false };
         const card = document.createElement('div');
         card.className = 'stage-card';
@@ -301,8 +305,8 @@
           <div class="progress-track" onclick="startStage(${def.id})">
             <div class="progress-fill" id="fill-${def.id}"></div>
             <div class="stage-name">
+              <span class="level-badge">Lv ${index + 1}</span>
               <span>${def.name}</span>
-              <span id="badge-${def.id}" class="milestone-badge" style="display:none;">Speed Up</span>
             </div>
             <div class="stage-revenue" id="rev-${def.id}">$0</div>
             <div class="stage-timer" id="time-${def.id}">0.0s</div>
@@ -327,23 +331,19 @@
     }
 
     function getDuration(def, qty) {
-      const penaltyRate = Math.max(1.0, 1.10 - (state.upgrades.brickPenaltyLv * 0.02));
-      let duration = def.baseTime * Math.pow(penaltyRate, state.prestigeCount);
+      let duration = def.baseTime * Math.pow(1.05, state.prestigeCount);
       let totalSpeedMultiplier = getMilestoneSpeedFactor(qty);
       if (isNaN(duration) || duration <= 0) duration = def.baseTime;
       return duration / totalSpeedMultiplier;
     }
 
     function getGlobalMultiplier() {
-      let m = 1 + (state.goldenBricks * 0.02);
-      if (Date.now() < state.adMultiplierEnd) m *= 2; 
-      return m;
+      return 1 + (state.goldenBricks * 0.02);
     }
 
     function updateTickers() {
       const globalMult = getGlobalMultiplier();
       
-      // Update Core Header Info safely
       if(document.getElementById('displayMoney')) document.getElementById('displayMoney').innerText = `$${Math.floor(state.money).toLocaleString()}`;
       if(document.getElementById('displayBricks')) document.getElementById('displayBricks').innerText = state.goldenBricks.toLocaleString();
       if(document.getElementById('displayDiamonds')) document.getElementById('displayDiamonds').innerText = state.diamonds.toLocaleString();
@@ -362,149 +362,4 @@
         const calculatedRev = def.baseRevenue * liveData.qty * globalMult;
         
         const qtyEl = document.getElementById(`qty-${def.id}`);
-        if(qtyEl) qtyEl.innerText = liveData.qty;
-        
-        const revEl = document.getElementById(`rev-${def.id}`);
-        if(revEl) revEl.innerText = `$${Math.floor(calculatedRev).toLocaleString()}`;
-        
-        const buyEl = document.getElementById(`buy-${def.id}`);
-        if(buyEl) {
-          buyEl.innerText = `Buy: $${currentCost.toLocaleString()}`;
-          buyEl.disabled = state.money < currentCost;
-        }
-
-        const mgrBtn = document.getElementById(`mgr-${def.id}`);
-        if (mgrBtn) {
-          if (!liveData.mgrHired) {
-            const mgrCost = def.baseCost * 15;
-            mgrBtn.disabled = state.money < mgrCost || liveData.qty === 0;
-            mgrBtn.innerText = `Mgr: $${Math.floor(mgrCost).toLocaleString()}`;
-          } else {
-            mgrBtn.innerText = "Automated";
-            mgrBtn.disabled = true;
-          }
-        }
-      });
-    }
-
-    function startStage(id) {
-      const liveData = state.stages.find(s => s.id === id);
-      if (liveData && liveData.qty > 0 && !liveData.isActive && !liveData.mgrHired) {
-        liveData.isActive = true;
-        liveData.progress = 0;
-      }
-    }
-
-    function buyStage(id) {
-      const def = stageDefinitions[id];
-      const liveData = state.stages.find(s => s.id === id);
-      if (!liveData) return;
-      
-      const currentCost = Math.floor(def.baseCost * Math.pow(1.15, liveData.qty));
-      if (state.money >= currentCost) {
-        state.money -= currentCost;
-        liveData.qty++;
-        updateTickers();
-        saveGame();
-      }
-    }
-
-    function buyManager(id) {
-      const def = stageDefinitions[id];
-      const liveData = state.stages.find(s => s.id === id);
-      if (!liveData) return;
-      
-      const mgrCost = def.baseCost * 15;
-      if (!liveData.mgrHired && state.money >= mgrCost && liveData.qty > 0) {
-        state.money -= mgrCost;
-        liveData.mgrHired = true;
-        liveData.isActive = true;
-        const btn = document.getElementById(`mgr-${id}`);
-        if(btn) btn.classList.add('hired');
-        updateTickers();
-        saveGame();
-      }
-    }
-
-    function buyTimeWarp(days, diamondCost) {
-      if (state.diamonds >= diamondCost) {
-        state.diamonds -= diamondCost;
-        let totalPassiveIncomePerSec = 0;
-        state.stages.forEach(liveData => {
-          if (liveData.qty > 0 && (liveData.mgrHired || liveData.id === 0)) {
-            const def = stageDefinitions.find(s => s.id === liveData.id);
-            const durationSec = getDuration(def, liveData.qty) / 100;
-            const revPerSec = (def.baseRevenue * liveData.qty * getGlobalMultiplier()) / durationSec;
-            totalPassiveIncomePerSec += isNaN(revPerSec) ? 0 : revPerSec;
-          }
-        });
-        const totalEarned = totalPassiveIncomePerSec * (days * 24 * 60 * 60);
-        state.money += totalEarned;
-        state.lifetimeEarnings += totalEarned;
-        updateTickers();
-        saveGame();
-        toggleShop(false);
-        alert(`Fast-forwarded operations by ${days} day(s) for $${Math.floor(totalEarned).toLocaleString()}!`);
-      }
-    }
-
-    function triggerPrestige() {
-      let pending = Math.floor(150 * Math.sqrt(state.lifetimeEarnings / 1000000)) - state.goldenBricks;
-      if (pending > 0) {
-        state.goldenBricks += pending;
-        state.prestigeCount++;
-        state.diamonds += 15; 
-        state.money = 0;
-        state.stages = stageDefinitions.map(s => ({ id: s.id, qty: s.id === 0 ? 1 : 0, mgrHired: false, progress: 0, isActive: false }));
-        generateUI();
-        updateTickers();
-        saveGame();
-      }
-    }
-
-    function hardResetGame() {
-      if (confirm("Reset all progress and cache?")) {
-        localStorage.removeItem('commercialEmpireSave_v5');
-        location.reload();
-      }
-    }
-
-    function saveGame() {
-      state.lastSaveTime = Date.now();
-      localStorage.setItem('commercialEmpireSave_v5', JSON.stringify(state));
-    }
-
-    function loadGame() {
-      const saved = localStorage.getItem('commercialEmpireSave_v5');
-      if (!saved) return;
-      
-      try {
-        const loadedState = JSON.parse(saved);
-        if (loadedState.money !== undefined) state.money = loadedState.money;
-        if (loadedState.lifetimeEarnings !== undefined) state.lifetimeEarnings = loadedState.lifetimeEarnings;
-        if (loadedState.goldenBricks !== undefined) state.goldenBricks = loadedState.goldenBricks;
-        if (loadedState.diamonds !== undefined) state.diamonds = loadedState.diamonds;
-        if (loadedState.prestigeCount !== undefined) state.prestigeCount = loadedState.prestigeCount;
-        if (loadedState.adMultiplierEnd !== undefined) state.adMultiplierEnd = loadedState.adMultiplierEnd;
-        
-        if (loadedState.stages && Array.isArray(loadedState.stages)) {
-          loadedState.stages.forEach(loadedStage => {
-            const target = state.stages.find(s => s.id === loadedStage.id);
-            if (target) {
-              if (loadedStage.qty !== undefined) target.qty = loadedStage.qty;
-              if (loadedStage.mgrHired !== undefined) target.mgrHired = loadedStage.mgrHired;
-              if (loadedStage.progress !== undefined) target.progress = loadedStage.progress;
-              if (loadedStage.isActive !== undefined) target.isActive = loadedStage.isActive;
-            }
-          });
-        }
-
-        // Offline Processing safely wrapped away from the UI elements
-        const offlineMs = Date.now() - (loadedState.lastSaveTime || Date.now());
-        if (offlineMs > 2000) {
-          let totalOfflineEarned = 0;
-          state.stages.forEach(liveData => {
-            if (liveData.mgrHired && liveData.qty > 0) {
-              const def = stageDefinitions.find(s => s.id === liveData.id);
-              const cycleTimeMs = getDuration(def, liveData.qty) * 10;
-              if 
+        if(qtyEl) qtyEl.innerText = liveData.
