@@ -3,486 +3,437 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idle Constructor - Crew Management</title>
+<title>Mega Builder: Capitalist Empire</title>
 <style>
   :root {
-    --bg-dark: #121214;
-    --panel-bg: #1a1a1e;
-    --panel-border: #2d2d34;
-    --accent-blue: #38bdf8;
-    --accent-green: #4ade80;
-    --accent-orange: #fb923c;
-    --text-main: #f4f4f5;
-    --text-muted: #a1a1aa;
+    --bg-main: #0b0f19;
+    --panel-bg: #151f32;
+    --border-color: #223452;
+    --money-green: #22c55e;
+    --gold-prestige: #eab308;
+    --text-white: #ffffff;
+    --text-gray: #94a3b8;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body { 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-    background-color: var(--bg-dark); 
-    color: var(--text-main); 
-    padding: 15px;
+    font-family: system-ui, -apple-system, sans-serif; 
+    background-color: var(--bg-main); 
+    color: var(--text-white); 
+    padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    user-select: none;
   }
 
   header {
+    width: 100%;
+    max-width: 480px;
     text-align: center;
-    margin-bottom: 15px;
-    width: 100%;
-    max-width: 450px;
+    padding: 10px 0;
+    position: sticky;
+    top: 0;
+    background: var(--bg-main);
+    z-index: 10;
   }
 
-  h1 { 
-    font-size: 1.6rem; 
-    font-weight: 800;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-  }
-
-  .global-tick-container {
-    width: 100%;
-    background: #27272a;
-    height: 4px;
-    margin-top: 10px;
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  #globalTickBar {
-    width: 0%;
-    height: 100%;
-    background: var(--accent-blue);
-  }
-
-  .dashboard { 
-    display: flex; 
-    flex-direction: column;
-    gap: 15px; 
-    width: 100%;
-    max-width: 450px;
-  }
-
-  .panel { 
-    background: var(--panel-bg); 
-    border: 1px solid var(--panel-border);
-    padding: 20px; 
-    border-radius: 16px; 
-    position: relative;
-  }
-
-  .resource-display {
-    text-align: center;
-    padding-bottom: 10px;
-  }
-
-  .resource-label {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .resource-val {
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: var(--accent-blue);
+  .main-money {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--money-green);
     font-family: monospace;
-    margin: 2px 0;
+    text-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
   }
 
-  .stats-row {
+  .prestige-count {
+    font-size: 0.9rem;
+    color: var(--gold-prestige);
+    font-weight: bold;
+    margin-top: 2px;
+  }
+
+  .scroll-container {
+    width: 100%;
+    max-width: 480px;
     display: flex;
-    justify-content: space-around;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    background: #222227;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 120px; /* Space for bottom prestige panel */
+  }
+
+  /* Stage Row Item - Adventure Capitalist Style */
+  .stage-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     padding: 8px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-  }
-
-  .stat-v { color: var(--accent-green); font-weight: bold; }
-  .stat-o { color: var(--accent-orange); font-weight: bold; }
-
-  /* Clicker Area & Animations */
-  .click-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     position: relative;
-    width: 100%;
-    background: #222227;
-    border: 2px dashed #3f3f46;
-    border-radius: 12px;
-    padding: 25px;
-    text-align: center;
-    cursor: pointer;
     overflow: hidden;
-    touch-action: manipulation;
   }
 
-  .axe-icon {
-    font-size: 3rem;
-    display: inline-block;
-    transition: transform 0.05s ease;
+  .stage-icon-box {
+    width: 50px;
+    height: 50px;
+    background: #1e293b;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    z-index: 2;
+    cursor: pointer;
+    border: 2px solid #334155;
+  }
+  .stage-qty {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: var(--text-gray);
   }
 
-  /* Animation: Axe Swing */
-  .swinging {
-    animation: swing 0.12s ease-in-out;
+  /* The Adv-Cap filling progress bar style */
+  .progress-track {
+    flex-grow: 1;
+    height: 50px;
+    background: #0f172a;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 12px;
   }
 
-  @keyframes swing {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(-25deg) scale(1.1); }
-    100% { transform: rotate(0deg) scale(1); }
-  }
-
-  /* Animation: Floating Text */
-  .floating-text {
+  .progress-fill {
     position: absolute;
-    color: var(--accent-green);
-    font-weight: 800;
-    font-size: 1.2rem;
-    pointer-events: none;
-    animation: floatUp 0.6s ease-out forwards;
-    font-family: monospace;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #16a34a, #22c55e);
+    z-index: -1;
   }
 
-  @keyframes floatUp {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-60px) scale(0.8); opacity: 0; }
+  .stage-name { font-size: 0.9rem; font-weight: bold; }
+  .stage-revenue { font-size: 0.85rem; color: var(--money-green); font-family: monospace; }
+  .stage-timer { position: absolute; right: 10px; font-size: 0.75rem; color: var(--text-gray); font-family: monospace; }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 2;
   }
 
-  /* Characters List */
-  .section-title {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    margin-bottom: 10px;
+  button {
+    border: none;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.1s ease;
   }
 
-  .card {
-    background: #222227;
-    border: 1px solid var(--panel-border);
-    border-radius: 12px;
-    padding: 12px;
+  button.buy-btn {
+    background: #0284c7;
+    color: white;
+    padding: 6px 12px;
+    width: 85px;
+  }
+  button.buy-btn:disabled { background: #1e293b; color: #475569; }
+
+  button.mgr-btn {
+    background: #475569;
+    color: #cbd5e1;
+    padding: 4px;
+    font-size: 0.65rem;
+  }
+  button.mgr-btn.hired { background: var(--gold-prestige); color: #000000; }
+
+  /* Bottom Sticky Prestige Footer */
+  .prestige-panel {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 480px;
+    background: rgba(21, 31, 50, 0.95);
+    border-top: 2px solid var(--border-color);
+    padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.5);
+    z-index: 100;
   }
 
-  .character-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .prestige-info h4 { font-size: 0.9rem; color: var(--gold-prestige); }
+  .prestige-info p { font-size: 0.75rem; color: var(--text-gray); }
 
-  .avatar {
-    font-size: 2.2rem;
-    background: #1a1a1e;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
+  button.reset-btn {
+    background: var(--gold-prestige);
+    color: #000000;
+    padding: 12px 16px;
+    font-size: 0.9rem;
   }
-
-  /* Animation: Character Idle Bounce */
-  .bouncing-avatar {
-    animation: idleBounce 1.5s infinite ease-in-out;
-  }
-
-  @keyframes idleBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
-  }
-
-  .info h3 { font-size: 0.95rem; color: #ffffff; }
-  .info p { font-size: 0.8rem; color: var(--text-muted); }
-
-  button.buy-btn {
-    background: transparent;
-    color: var(--accent-green);
-    border: 1px solid var(--accent-green);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.85rem;
-  }
-
-  button.buy-btn:disabled {
-    color: #4e4e54;
-    border-color: #2d2d34;
-  }
-
-  button.buy-manager {
-    border-color: var(--accent-orange);
-    color: var(--accent-orange);
-  }
-
-  button.buy-manager:disabled {
-    color: #4e4e54;
-    border-color: #2d2d34;
-  }
+  button.reset-btn:disabled { background: #334155; color: #64748b; }
 
   .notice {
     background: #1e293b;
-    border: 1px solid var(--accent-blue);
-    color: #f8fafc;
-    padding: 12px;
-    font-size: 0.85rem;
-    margin-bottom: 15px;
+    border: 1px solid var(--money-green);
+    color: white;
+    padding: 10px;
+    font-size: 0.8rem;
     border-radius: 8px;
-    display: none;
-    width: 100%;
-    max-width: 450px;
+    margin-bottom: 10px;
     text-align: center;
+    width: 100%;
+    max-width: 480px;
+    display: none;
   }
 </style>
 </head>
 <body>
 
   <header>
-    <h1>Idle Crew Chief</h1>
-    <div class="global-tick-container">
-      <div id="globalTickBar"></div>
-    </div>
+    <div class="resource-label" style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-gray);">Liquid Capital</div>
+    <div id="displayMoney" class="main-money">$0</div>
+    <div class="prestige-count">🧱 <span id="displayBricks">0</span> Golden Bricks (+<span id="displayBonus">0</span>% Boost)</div>
   </header>
-  
+
   <div id="offlineNotice" class="notice"></div>
-  
-  <div class="dashboard">
-    
-    <div class="panel">
-      <div class="resource-display">
-        <div class="resource-label">Total Logs Managed</div>
-        <div id="wood" class="resource-val">0</div>
-      </div>
-      
-      <div class="stats-row">
-        <div>Crew: <span id="wps" class="stat-v">+0</span>/s</div>
-        <div>Auto-Clickers: <span id="cps" class="stat-o">0</span>/s</div>
-      </div>
 
-      <div class="click-box" id="clickArea">
-        <div class="axe-icon" id="axeEmoji">🪓</div>
-        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; text-transform: uppercase;">Tap to Harvest</div>
-      </div>
+  <div class="scroll-container" id="stagesList"></div>
+
+  <div class="prestige-panel">
+    <div class="prestige-info">
+      <h4>Demolish & Rebuild</h4>
+      <p>Claim: <span id="pendingBricks" style="color: var(--gold-prestige); font-weight:bold;">0</span> Golden Bricks</p>
     </div>
-
-    <div class="panel">
-      <div class="section-title">Active Crew Members</div>
-      
-      <div class="card">
-        <div class="character-profile">
-          <div class="avatar bouncing-avatar" style="animation-delay: 0s;">👦</div>
-          <div class="info">
-            <h3>Charlie (Apprentice)</h3>
-            <p>Count: <span id="countC">0</span> | +1 log/s</p>
-            <p style="color: var(--text-muted);">Cost: <span id="costC">10</span></p>
-          </div>
-        </div>
-        <button id="btnC" class="buy-btn" onclick="buyCharlie()">Hire</button>
-      </div>
-
-      <div class="card">
-        <div class="character-profile">
-          <div class="avatar bouncing-avatar" style="animation-delay: 0.4s;">👩‍🎤</div>
-          <div class="info">
-            <h3>Sally (Master Logger)</h3>
-            <p>Count: <span id="countS">0</span> | +5 logs/s</p>
-            <p style="color: var(--text-muted);">Cost: <span id="costS">50</span></p>
-          </div>
-        </div>
-        <button id="btnS" class="buy-btn" onclick="buySally()">Hire</button>
-      </div>
-
-      <div class="section-title" style="margin-top: 15px;">Management / Automation</div>
-
-      <div class="card">
-        <div class="character-profile">
-          <div class="avatar" id="managerAvatar">👴</div>
-          <div class="info">
-            <h3>Foreman Frank</h3>
-            <p>Count: <span id="countF">0</span></p>
-            <p style="color: var(--accent-orange);">Auto-clicks 2x every second!</p>
-            <p style="color: var(--text-muted);">Cost: <span id="costF">200</span></p>
-          </div>
-        </div>
-        <button id="btnF" class="buy-btn buy-manager" onclick="buyForeman()">Appoint</button>
-      </div>
-
-    </div>
-
+    <button id="prestigeBtn" class="reset-btn" onclick="triggerPrestige()">Sell Empire</button>
   </div>
 
   <script>
-    // Game State Setup
+    // System Data: The 10 Stages of Home Building
+    const stageDefinitions = [
+      { id: 0, icon: '📜', name: 'Zoning & Permits',     baseCost: 4,         baseRevenue: 1,        baseTime: 600 },
+      { id: 1, icon: '🚜', name: 'Excavation & Clears',  baseCost: 60,        baseRevenue: 60,       baseTime: 3000 },
+      { id: 2, icon: '🧱', name: 'Concrete Foundation', baseCost: 720,       baseRevenue: 540,      baseTime: 6000 },
+      { id: 3, icon: '🪵', name: 'Framing & Studs',      baseCost: 8640,      baseRevenue: 4320,     baseTime: 12000 },
+      { id: 4, icon: '🏠', name: 'Roofing & Siding',     baseCost: 103680,    baseRevenue: 51840,    baseTime: 24000 },
+      { id: 5, icon: '🚰', name: 'Plumbing Systems',     baseCost: 1244160,   baseRevenue: 622080,   baseTime: 48000 },
+      { id: 6, icon: '⚡', name: 'Electrical Grid',      baseCost: 14930000,  baseRevenue: 7464900,  baseTime: 96000 },
+      { id: 7, icon: '📐', name: 'Drywall & Insulation', baseCost: 179160000, baseRevenue: 89580000, baseTime: 192000 },
+      { id: 8, icon: '🎨', name: 'Interior Trim & Paint',baseCost: 2150000000,baseRevenue: 1075000000,baseTime: 384000 },
+      { id: 9, icon: '🔑', name: 'Final Handover Sale', baseCost: 25800000000,baseRevenue: 12900000000,baseTime: 768000 }
+    ];
+
+    // Core Engine State Saving Variables
     let state = {
-      wood: 0,
-      wps: 0, // Crew passive production
-      charlies: 0, costC: 10,
-      sallies: 0, costS: 50,
-      foremen: 0, costF: 200,
-      lastSaveTime: Date.now()
+      money: 0,
+      lifetimeEarnings: 0,
+      goldenBricks: 0,
+      lastSaveTime: Date.now(),
+      stages: stageDefinitions.map(s => ({
+        id: s.id,
+        qty: s.id === 0 ? 1 : 0, // Start with 1 permit opened automatically
+        mgrHired: false,
+        progress: 0,
+        isActive: false
+      }))
     };
 
-    function updateUI() {
-      document.getElementById('wood').innerText = Math.floor(state.wood).toLocaleString();
-      document.getElementById('wps').innerText = `+${state.wps}`;
-      document.getElementById('cps').innerText = state.foremen * 2;
-
-      // Update Crew Cards
-      document.getElementById('countC').innerText = state.charlies;
-      document.getElementById('costC').innerText = state.costC;
-      document.getElementById('btnC').disabled = state.wood < state.costC;
-
-      document.getElementById('countS').innerText = state.sallies;
-      document.getElementById('costS').innerText = state.costS;
-      document.getElementById('btnS').disabled = state.wood < state.costS;
-
-      // Update Manager Card
-      document.getElementById('countF').innerText = state.foremen;
-      document.getElementById('costF').innerText = state.costF;
-      document.getElementById('btnF').disabled = state.wood < state.costF;
+    // Build visual list inside mobile view screen dynamically
+    function generateUI() {
+      const listEl = document.getElementById('stagesList');
+      listEl.innerHTML = '';
       
-      // Make manager avatar dance if active
-      if(state.foremen > 0) {
-        document.getElementById('managerAvatar').classList.add('bouncing-avatar');
+      stageDefinitions.forEach(def => {
+        const liveData = state.stages[def.id];
+        const currentCost = Math.floor(def.baseCost * Math.pow(1.15, liveData.qty));
+        const calculatedRev = def.baseRevenue * liveData.qty * (1 + (state.goldenBricks * 0.02));
+
+        const card = document.createElement('div');
+        card.className = 'stage-card';
+        card.id = `card-${def.id}`;
+        
+        card.innerHTML = `
+          <div class="stage-icon-box" onclick="startStage(${def.id})">
+            <div>${def.icon}</div>
+            <div class="stage-qty" id="qty-${def.id}">${liveData.qty}</div>
+          </div>
+          
+          <div class="progress-track" onclick="startStage(${def.id})">
+            <div class="progress-fill" id="fill-${def.id}"></div>
+            <div class="stage-name">${def.name}</div>
+            <div class="stage-revenue" id="rev-${def.id}">$${Math.floor(calculatedRev).toLocaleString()}</div>
+            <div class="stage-timer" id="time-${def.id}">0.0s</div>
+          </div>
+          
+          <div class="action-buttons">
+            <button class="buy-btn" id="buy-${def.id}" onclick="buyStage(${def.id})">$${currentCost.toLocaleString()}</button>
+            <button class="mgr-btn ${liveData.mgrHired ? 'hired' : ''}" id="mgr-${def.id}" onclick="buyManager(${def.id})">
+              ${liveData.mgrHired ? 'Automated' : 'Manager: $' + Math.floor(def.baseCost * 15).toLocaleString()}
+            </button>
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
+    }
+
+    function updateTickers() {
+      document.getElementById('displayMoney').innerText = `$${Math.floor(state.money).toLocaleString()}`;
+      document.getElementById('displayBricks').innerText = state.goldenBricks.toLocaleString();
+      document.getElementById('displayBonus').innerText = state.goldenBricks * 2;
+
+      // Calculate Adventure Capitalist style formula formula for prestige reward
+      let pending = Math.floor(150 * Math.sqrt(state.lifetimeEarnings / 1000000)) - state.goldenBricks;
+      if (pending < 0) pending = 0;
+      document.getElementById('pendingBricks').innerText = pending.toLocaleString();
+      document.getElementById('prestigeBtn').disabled = pending === 0;
+
+      stageDefinitions.forEach(def => {
+        const liveData = state.stages[def.id];
+        const currentCost = Math.floor(def.baseCost * Math.pow(1.15, liveData.qty));
+        const calculatedRev = def.baseRevenue * liveData.qty * (1 + (state.goldenBricks * 0.02));
+        
+        document.getElementById(`qty-${def.id}`).innerText = liveData.qty;
+        document.getElementById(`rev-${def.id}`).innerText = `$${Math.floor(calculatedRev).toLocaleString()}`;
+        document.getElementById(`buy-${def.id}`).innerText = `Buy: $${currentCost.toLocaleString()}`;
+        document.getElementById(`buy-${def.id}`).disabled = state.money < currentCost;
+        
+        const mgrBtn = document.getElementById(`mgr-${def.id}`);
+        if (!liveData.mgrHired) {
+          mgrBtn.disabled = state.money < (def.baseCost * 15) || liveData.qty === 0;
+        }
+      });
+    }
+
+    function startStage(id) {
+      const liveData = state.stages[id];
+      if (liveData.qty > 0 && !liveData.isActive && !liveData.mgrHired) {
+        liveData.isActive = true;
+        liveData.progress = 0;
       }
     }
 
-    // Manual Click Mechanic
-    const clickArea = document.getElementById('clickArea');
-    clickArea.addEventListener('click', (e) => {
-      state.wood += 1;
-      
-      // Trigger Axe swing animation
-      const axe = document.getElementById('axeEmoji');
-      axe.classList.remove('swinging');
-      void axe.offsetWidth; // Reset animation
-      axe.classList.add('swinging');
-
-      // Create floating number directly where finger tapped
-      const rect = clickArea.getBoundingClientRect();
-      const x = e.clientX ? (e.clientX - rect.left) : (rect.width / 2);
-      const y = e.clientY ? (e.clientY - rect.top) : (rect.height / 2);
-      popText("+1", x, y);
-
-      updateUI();
-      saveGame();
-    });
-
-    function popText(txt, x, y) {
-      const p = document.createElement('div');
-      p.className = 'floating-text';
-      p.innerText = txt;
-      p.style.left = `${x}px`;
-      p.style.top = `${y}px`;
-      clickArea.appendChild(p);
-      setTimeout(() => p.remove(), 600);
-    }
-
-    // Purchase Logic
-    function buyCharlie() {
-      if (state.wood >= state.costC) {
-        state.wood -= state.costC;
-        state.charlies++;
-        state.wps += 1;
-        state.costC = Math.floor(state.costC * 1.4);
-        updateUI(); saveGame();
+    function buyStage(id) {
+      const def = stageDefinitions[id];
+      const currentCost = Math.floor(def.baseCost * Math.pow(1.15, state.stages[id].qty));
+      if (state.money >= currentCost) {
+        state.money -= currentCost;
+        state.stages[id].qty++;
+        updateTickers();
+        saveGame();
       }
     }
 
-    function buySally() {
-      if (state.wood >= state.costS) {
-        state.wood -= state.costS;
-        state.sallies++;
-        state.wps += 5;
-        state.costS = Math.floor(state.costS * 1.4);
-        updateUI(); saveGame();
+    function buyManager(id) {
+      const def = stageDefinitions[id];
+      const liveData = state.stages[id];
+      const mgrCost = def.baseCost * 15;
+      if (!liveData.mgrHired && state.money >= mgrCost && liveData.qty > 0) {
+        state.money -= mgrCost;
+        liveData.mgrHired = true;
+        liveData.isActive = true;
+        const btn = document.getElementById(`mgr-${id}`);
+        btn.classList.add('hired');
+        btn.innerText = "Automated";
+        updateTickers();
+        saveGame();
       }
     }
 
-    function buyForeman() {
-      if (state.wood >= state.costF) {
-        state.wood -= state.costF;
-        state.foremen++;
-        state.costF = Math.floor(state.costF * 1.6);
-        updateUI(); saveGame();
+    function triggerPrestige() {
+      let pending = Math.floor(150 * Math.sqrt(state.lifetimeEarnings / 1000000)) - state.goldenBricks;
+      if (pending > 0) {
+        state.goldenBricks += pending;
+        state.money = 0;
+        // Keep lifetime earnings intact so math functions correctly
+        state.stages = stageDefinitions.map(s => ({
+          id: s.id,
+          qty: s.id === 0 ? 1 : 0,
+          mgrHired: false,
+          progress: 0,
+          isActive: false
+        }));
+        generateUI();
+        updateTickers();
+        saveGame();
       }
     }
 
-    // Save & Load Progress (Fridge Box)
     function saveGame() {
       state.lastSaveTime = Date.now();
-      localStorage.setItem('idleCrewChiefSave', JSON.stringify(state));
+      localStorage.setItem('advCapHomeBuilderSave', JSON.stringify(state));
     }
 
     function loadGame() {
-      const saved = localStorage.getItem('idleCrewChiefSave');
+      const saved = localStorage.getItem('advCapHomeBuilderSave');
       if (saved) {
         state = JSON.parse(saved);
+        generateUI();
         
-        // Calculate Offline Earnings (Including Crew + Automated Management clicks)
+        // Calculate Offline Earnings
         const now = Date.now();
-        const totalOfflineSeconds = Math.floor((now - state.lastSaveTime) / 1000);
-        
-        const totalPassiveRate = state.wps + (state.foremen * 2); // Crew production + Auto-Clicks
-        const earnings = totalOfflineSeconds * totalPassiveRate;
-        
-        if (earnings > 0) {
-          state.wood += earnings;
+        const offlineMs = now - state.lastSaveTime;
+        let totalOfflineEarned = 0;
+
+        state.stages.forEach(liveData => {
+          if (liveData.mgrHired && liveData.qty > 0) {
+            const def = stageDefinitions[liveData.id];
+            const cycleTimeMs = def.baseTime * 10; // Convert duration metric
+            const completions = Math.floor(offlineMs / cycleTimeMs);
+            const calculatedRev = def.baseRevenue * liveData.qty * (1 + (state.goldenBricks * 0.02));
+            
+            if (completions > 0) {
+              const earned = completions * calculatedRev;
+              totalOfflineEarned += earned;
+              state.money += earned;
+              state.lifetimeEarnings += earned;
+            }
+          }
+        });
+
+        if (totalOfflineEarned > 0) {
           const notice = document.getElementById('offlineNotice');
-          notice.innerHTML = `💼 <strong>Welcome back Chief!</strong> Your crew and managers earned <strong>${earnings.toLocaleString()}</strong> logs while you were offline.`;
+          notice.innerHTML = `💸 <strong>Welcome back Tycoon!</strong> Your hired construction managers ran operations smoothly while you slept, bringing in <strong>$${Math.floor(totalOfflineEarned).toLocaleString()}</strong> cash profit!`;
           notice.style.display = 'block';
-          setTimeout(() => { notice.style.display = 'none'; }, 8000);
+          setTimeout(() => notice.style.display = 'none', 10000);
         }
+      } else {
+        generateUI();
       }
-      updateUI();
+      updateTickers();
     }
 
-    // Main Game Engine Loop
-    let lastTick = Date.now();
-    function runGameEngine() {
+    // Animation Calculation Loop Engine
+    let lastTimestamp = Date.now();
+    function gameLoop() {
       const now = Date.now();
-      const elapsed = now - lastTick;
-      
-      // Update visual ticker bar smoothly
-      document.getElementById('globalTickBar').style.width = `${(elapsed % 1000) / 10}%`;
-      
-      if (elapsed >= 1000) {
-        const secondsPassed = Math.floor(elapsed / 1000);
-        
-        // Add Wood: Crew Progress + Management Progress combined!
-        const generationPerSecond = state.wps + (state.foremen * 2);
-        state.wood += (generationPerSecond * secondsPassed);
-        
-        // Minor visual feedback for automation
-        if(state.foremen > 0) {
-          const axe = document.getElementById('axeEmoji');
-          axe.classList.remove('swinging');
-          void axe.offsetWidth;
-          axe.classList.add('swinging');
-        }
+      const deltaTime = now - lastTimestamp;
+      lastTimestamp = now;
 
-        lastTick = now - (elapsed % 1000);
-        updateUI();
-        saveGame();
-      }
-      
-      requestAnimationFrame(runGameEngine);
-    }
-
-    loadGame();
-    requestAnimationFrame(runGameEngine);
-  </script>
-</body>
-</html>
+      state.stages.forEach(liveData => {
+        if (liveData.qty > 0 && liveData.isActive) {
+          const def = stageDefinitions[liveData.id];
+          // Determine cycle length scaled down for frame interpolation
+          const duration = def.baseTime; 
+          
+          liveData.progress += (deltaTime / 10);
+          
+          const fillEl = document.getElementById(`fill-${def.id}`);
+          const timeEl = document.getElementById(`time-${def.id}`);
+          
+          let pct = (liveData.progress / duration) * 100;
+          if (pct >= 100) {
+            // Payout Reward!
+            const calculatedRev = def.baseRevenue * liveData.qty * (1 + (state.goldenBricks * 0.02));
+            state.
