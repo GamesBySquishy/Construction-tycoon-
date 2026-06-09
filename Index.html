@@ -3,92 +3,243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idle Constructor - Saved Progress</title>
+<title>Idle Constructor Pro</title>
 <style>
-  body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    background-color: #1e1e1e; 
-    color: #cccccc; 
-    padding: 20px; 
+  :root {
+    --bg-dark: #121214;
+    --panel-bg: #1a1a1e;
+    --panel-border: #2d2d34;
+    --accent-blue: #38bdf8;
+    --accent-green: #4ade80;
+    --text-main: #f4f4f5;
+    --text-muted: #a1a1aa;
   }
-  h1 { color: #ffffff; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    background-color: var(--bg-dark); 
+    color: var(--text-main); 
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 450px;
+  }
+
+  h1 { 
+    font-size: 1.8rem; 
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+  }
+
+  .global-tick-container {
+    width: 100%;
+    background: #27272a;
+    height: 4px;
+    margin-top: 10px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  #globalTickBar {
+    width: 0%;
+    height: 100%;
+    background: var(--accent-blue);
+    transition: width 0.1s linear;
+  }
+
   .dashboard { 
     display: flex; 
-    gap: 20px; 
-    flex-wrap: wrap; 
+    flex-direction: column;
+    gap: 15px; 
+    width: 100%;
+    max-width: 450px;
   }
+
   .panel { 
-    background: #252526; 
-    border: 1px solid #333333;
+    background: var(--panel-bg); 
+    border: 1px solid var(--panel-border);
     padding: 20px; 
-    border-radius: 8px; 
-    width: 250px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
+
+  .resource-display {
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  .resource-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
   .resource-val {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #4fc1ff;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent-blue);
+    font-family: monospace;
+    margin: 5px 0;
   }
+
+  .resource-rate {
+    font-size: 0.9rem;
+    color: var(--accent-green);
+  }
+
+  .upgrade-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .upgrade-card {
+    background: #222227;
+    border: 1px solid #2d2d34;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .upgrade-info h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  .upgrade-info p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
   button { 
-    background: #0e639c; 
+    background: #27272a; 
     color: white; 
-    border: none; 
-    padding: 10px; 
+    border: 1px solid #3f3f46;
+    padding: 12px 20px; 
     cursor: pointer; 
-    width: 100%; 
-    margin-top: 15px; 
-    border-radius: 4px; 
-    font-weight: bold;
+    border-radius: 8px; 
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
   }
-  button:hover { background: #1177bb; }
-  button:disabled { background: #555555; color: #888888; cursor: not-allowed; }
-  hr { border-color: #333333; margin: 15px 0; }
-  
-  /* The popup message area for offline gains */
+
+  button.action-btn {
+    background: var(--accent-blue);
+    color: #000000;
+    border: none;
+    width: 100%;
+    font-size: 1rem;
+    padding: 14px;
+    margin-top: 10px;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+  }
+
+  button.action-btn:active {
+    transform: scale(0.98);
+    background: #0ea5e9;
+  }
+
+  button.buy-btn {
+    background: transparent;
+    color: var(--accent-green);
+    border: 1px solid var(--accent-green);
+    min-width: 90px;
+  }
+
+  button.buy-btn:disabled { 
+    background: transparent; 
+    color: #4e4e54; 
+    border-color: #2d2d34;
+    cursor: not-allowed; 
+  }
+
+  button.buy-btn:not(:disabled):active {
+    background: rgba(74, 222, 128, 0.1);
+  }
+
   .notice {
-    background: #2d2d2d;
-    color: #4fc1ff;
-    padding: 15px;
-    border-left: 4px solid #0e639c;
-    margin-bottom: 20px;
-    border-radius: 4px;
+    background: #1e293b;
+    border: 1px solid #38bdf8;
+    color: #f8fafc;
+    padding: 12px;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+    border-radius: 8px;
     display: none;
-    font-weight: bold;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
   }
 </style>
 </head>
 <body>
 
-  <h1>Idle Constructor</h1>
+  <header>
+    <h1>Idle Constructor</h1>
+    <div class="global-tick-container">
+      <div id="globalTickBar"></div>
+    </div>
+  </header>
   
   <div id="offlineNotice" class="notice"></div>
   
   <div class="dashboard">
     
     <div class="panel">
-      <h2>Resources</h2>
-      <p>Wood: <span id="wood" class="resource-val">0</span></p>
-      <p>Production: <span id="wps">0</span> / sec</p>
-      <button onclick="chopWood()">Chop Wood (+1)</button>
+      <div class="resource-display">
+        <div class="resource-label">Available Lumber</div>
+        <div id="wood" class="resource-val">0</div>
+        <div class="resource-rate">+<span id="wps">0</span> / sec</div>
+      </div>
+      <button class="action-btn" onclick="chopWood()">🪓 Swing Axe</button>
     </div>
 
     <div class="panel">
-      <h2>Construction</h2>
-      <p>Lumberjack Camp (<span id="campCount">0</span>)</p>
-      <p>Cost: <span id="campCost">10</span> Wood</p>
-      <p><em>Generates +1 Wood / sec</em></p>
-      <button id="btnCamp" onclick="buyCamp()">Build Camp</button>
-      <hr>
-      <p>Sawmill (<span id="millCount">0</span>)</p>
-      <p>Cost: <span id="millCost">50</span> Wood</p>
-      <p><em>Generates +5 Wood / sec</em></p>
-      <button id="btnMill" onclick="buyMill()">Build Sawmill</button>
+      <div style="margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Infrastructure</div>
+      
+      <div class="upgrade-row">
+        <div class="upgrade-card">
+          <div class="upgrade-info">
+            <h3>Lumber Camp (<span id="campCount">0</span>)</h3>
+            <p>Cost: <span id="campCost">10</span> Wood</p>
+          </div>
+          <button id="btnCamp" class="buy-btn" onclick="buyCamp()">Build</button>
+        </div>
+
+        <div class="upgrade-card">
+          <div class="upgrade-info">
+            <h3>Sawmill (<span id="millCount">0</span>)</h3>
+            <p>Cost: <span id="millCost">50</span> Wood</p>
+          </div>
+          <button id="btnMill" class="buy-btn" onclick="buyMill()">Build</button>
+        </div>
+      </div>
+
     </div>
 
   </div>
 
   <script>
-    // Game State (The data we need to remember)
     let state = {
       wood: 0,
       wps: 0,
@@ -96,12 +247,11 @@
       campCost: 10,
       mills: 0,
       millCost: 50,
-      lastSaveTime: Date.now() // Records exactly when the game was last played
+      lastSaveTime: Date.now()
     };
 
-    // Update the UI (What the player sees on screen)
     function updateUI() {
-      document.getElementById('wood').innerText = Math.floor(state.wood);
+      document.getElementById('wood').innerText = Math.floor(state.wood).toLocaleString();
       document.getElementById('wps').innerText = state.wps;
       
       document.getElementById('campCount').innerText = state.camps;
@@ -113,7 +263,6 @@
       document.getElementById('btnMill').disabled = state.wood < state.millCost;
     }
 
-    // Player Actions
     function chopWood() {
       state.wood += 1;
       updateUI();
@@ -142,46 +291,56 @@
       }
     }
 
-    // Save Game to Browser Memory
     function saveGame() {
-      state.lastSaveTime = Date.now(); // Put the current time in the capsule
-      localStorage.setItem('idleConstructorSave', JSON.stringify(state));
+      state.lastSaveTime = Date.now();
+      localStorage.setItem('idleConstructorSavePro', JSON.stringify(state));
     }
 
-    // Load Game from Browser Memory
     function loadGame() {
-      const savedData = localStorage.getItem('idleConstructorSave');
+      const savedData = localStorage.getItem('idleConstructorSavePro');
       if (savedData) {
         state = JSON.parse(savedData);
         
-        // Calculate time away
         const now = Date.now();
         const offlineSeconds = Math.floor((now - state.lastSaveTime) / 1000);
         const offlineWood = offlineSeconds * state.wps;
         
-        // If they earned wood while gone, show them a nice greeting
         if (offlineWood > 0) {
           state.wood += offlineWood;
           const noticeEl = document.getElementById('offlineNotice');
-          noticeEl.innerText = `Welcome back! Your structures generated ${offlineWood} Wood while you were away for ${offlineSeconds} seconds.`;
+          noticeEl.innerText = `📦 While you were away, your operations generated ${offlineWood.toLocaleString()} wood.`;
           noticeEl.style.display = 'block';
-          
-          // Make the greeting disappear after 7 seconds
-          setTimeout(() => { noticeEl.style.display = 'none'; }, 7000);
+          setTimeout(() => { noticeEl.style.display = 'none'; }, 6000);
         }
       }
       updateUI();
     }
 
-    // Core Game Loop (Runs every 1 second)
-    setInterval(() => {
-      state.wood += state.wps;
-      updateUI();
-      saveGame(); // Automatically save progress every second
-    }, 1000);
+    // Smooth Progress Bar Animation Engine
+    let lastTick = Date.now();
+    function runVisualEngine() {
+      const now = Date.now();
+      const elapsed = now - lastTick;
+      
+      // Calculate percentage of the current 1-second interval
+      const pct = (elapsed % 1000) / 10;
+      document.getElementById('globalTickBar').style.width = `${pct}%`;
+      
+      // Trigger actual resource allocation every time 1 full second passes
+      if (elapsed >= 1000) {
+        const secondsPassed = Math.floor(elapsed / 1000);
+        state.wood += (state.wps * secondsPassed);
+        lastTick = now - (elapsed % 1000); // Carry over leftover milliseconds
+        updateUI();
+        saveGame();
+      }
+      
+      requestAnimationFrame(runVisualEngine);
+    }
 
-    // Run this right when the page opens up
     loadGame();
+    // Start the game loop
+    requestAnimationFrame(runVisualEngine);
   </script>
 </body>
 </html>
