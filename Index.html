@@ -436,4 +436,37 @@
           if (pct >= 100) {
             // Payout Reward!
             const calculatedRev = def.baseRevenue * liveData.qty * (1 + (state.goldenBricks * 0.02));
-            state.
+            state.money += calculatedRev;
+            state.lifetimeEarnings += calculatedRev;
+            updateTickers();
+
+            if (liveData.mgrHired) {
+              liveData.progress = 0; // Automatically keep looping loop
+            } else {
+              liveData.progress = 0;
+              liveData.isActive = false;
+              pct = 0;
+            }
+            saveGame();
+          }
+          
+          if (fillEl) fillEl.style.width = `${pct}%`;
+          if (timeEl) timeEl.innerText = `${Math.max(0, ((duration - liveData.progress)/100).toFixed(1))}s`;
+        }
+      });
+
+      // Passive UI checks for buy triggers
+      stageDefinitions.forEach(def => {
+        const currentCost = Math.floor(def.baseCost * Math.pow(1.15, state.stages[def.id].qty));
+        const btn = document.getElementById(`buy-${def.id}`);
+        if(btn) btn.disabled = state.money < currentCost;
+      });
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    loadGame();
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
