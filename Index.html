@@ -2,27 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tycoon Game</title>
 <style>
-  body { background: #0b0f19; color: white; font-family: sans-serif; padding: 20px; }
+  :root { --bg: #0b0f19; --panel: #151f32; --accent: #22c55e; --text: #ffffff; }
+  body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+  
   .stage-row { 
-    background: #1e293b; border: 1px solid #334155; padding: 15px; 
-    margin-bottom: 10px; border-radius: 8px; display: flex; align-items: center; gap: 15px; 
+    background: var(--panel); 
+    border: 1px solid #223452; 
+    padding: 15px; 
+    margin-bottom: 12px; 
+    border-radius: 12px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
   }
-  button { padding: 10px; cursor: pointer; background: #22c55e; border: none; color: white; border-radius: 4px; font-weight: bold; }
-  button:disabled { background: #475569; cursor: not-allowed; }
+
+  .action-btn { 
+    padding: 10px 15px; cursor: pointer; background: #0284c7; border: none; color: white; border-radius: 6px; font-weight: bold; 
+  }
+  .mgr-btn { 
+    padding: 10px 15px; cursor: pointer; background: #475569; border: none; color: #cbd5e1; border-radius: 6px; font-weight: bold; margin-left: 5px;
+  }
+  .mgr-btn.hired { background: #eab308; color: black; }
 </style>
 </head>
 <body>
 
-  <h1>Assets: $<span id="money">0</span></h1>
+  <h1>Assets: $<span id="money">50</span></h1>
   <div id="gameContainer"></div>
 
   <script>
     const stages = [
-      { id: 0, name: 'Permits', cost: 10, revenue: 1 },
-      { id: 1, name: 'Excavation', cost: 100, revenue: 10 }
+      { id: 0, name: 'Permits', cost: 10, revenue: 1, hired: false },
+      { id: 1, name: 'Excavation', cost: 100, revenue: 10, hired: false },
+      { id: 2, name: 'Foundation', cost: 500, revenue: 50, hired: false }
     ];
     let money = 50;
 
@@ -34,32 +47,52 @@
         const div = document.createElement('div');
         div.className = 'stage-row';
         div.innerHTML = `
-          <span>${stage.name}</span>
-          <button id="btn-${stage.id}">Buy for $${stage.cost}</button>
+          <div>
+            <strong>${stage.name}</strong><br>
+            <small>Revenue: $${stage.revenue}</small>
+          </div>
+          <div>
+            <button class="action-btn" id="buy-${stage.id}">Buy ($${stage.cost})</button>
+            <button class="mgr-btn ${stage.hired ? 'hired' : ''}" id="mgr-${stage.id}">Mgr</button>
+          </div>
         `;
         container.appendChild(div);
 
-        // ATTACH EVENT LISTENER DIRECTLY
-        const btn = div.querySelector('button');
-        btn.onclick = function() {
-          console.log("Clicked:", stage.name);
+        // Buy Logic
+        div.querySelector(`#buy-${stage.id}`).onclick = () => {
           if (money >= stage.cost) {
             money -= stage.cost;
-            alert("Bought " + stage.name);
-            update();
-          } else {
-            alert("Not enough money!");
+            updateUI();
+          }
+        };
+
+        // Manager Logic
+        div.querySelector(`#mgr-${stage.id}`).onclick = () => {
+          if (!stage.hired && money >= (stage.cost * 5)) {
+            money -= (stage.cost * 5);
+            stage.hired = true;
+            render(); // Re-render to update class
+            updateUI();
           }
         };
       });
     }
 
-    function update() {
+    function updateUI() {
       document.getElementById('money').innerText = money;
     }
 
+    // Auto-loop for income
+    setInterval(() => {
+      stages.forEach(s => {
+        if (s.hired) {
+          money += s.revenue;
+        }
+      });
+      updateUI();
+    }, 1000);
+
     render();
-    update();
   </script>
 </body>
 </html>
