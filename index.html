@@ -6,14 +6,16 @@
     <title>Construction Tycoon</title>
     <style>
         :root {
-            --bg-primary: #1e222b;
-            --bg-secondary: #282c34;
+            --bg-primary: #12141c;
+            --bg-secondary: #1a1d26;
+            --bg-card: #222733;
             --accent-orange: #ff9800;
             --accent-yellow: #ffeb3b;
             --text-light: #f5f5f5;
-            --text-muted: #b0bec5;
-            --progress-bg: #37474f;
-            --success-green: #4caf50;
+            --text-muted: #90a4ae;
+            --progress-bg: #2c3242;
+            --success-green: #00e676;
+            --prestige-purple: #b388ff;
         }
 
         * {
@@ -35,25 +37,40 @@
 
         header {
             background-color: var(--bg-secondary);
-            padding: 20px;
-            text-align: center;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 4px solid var(--accent-orange);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
 
-        header h1 {
-            font-size: 24px;
+        .brand h1 {
+            font-size: 22px;
             color: var(--accent-yellow);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
+            letter-spacing: 1px;
         }
 
-        #corporate-funds {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--success-green);
+        .stats-display {
+            display: flex;
+            gap: 30px;
+            text-align: right;
         }
+
+        .stat-box .label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-box .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #corporate-funds { color: var(--success-green); }
+        #investor-count { color: var(--prestige-purple); }
 
         .main-container {
             display: flex;
@@ -62,25 +79,26 @@
         }
 
         .sidebar {
-            width: 250px;
+            width: 220px;
             background-color: var(--bg-secondary);
-            border-right: 2px solid #37474f;
+            border-right: 2px solid var(--progress-bg);
             display: flex;
             flex-direction: column;
-            padding: 10px;
+            padding: 15px;
             gap: 10px;
         }
 
         .tab-btn {
-            background-color: var(--bg-primary);
+            background-color: var(--bg-card);
             color: var(--text-light);
             border: 2px solid var(--progress-bg);
             padding: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             border-radius: 6px;
             transition: all 0.2s;
+            text-align: left;
         }
 
         .tab-btn.active {
@@ -93,6 +111,7 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
+            background-color: var(--bg-primary);
         }
 
         .panel {
@@ -105,70 +124,82 @@
             display: flex;
         }
 
-        /* Project Card Styling */
+        h2 {
+            font-size: 20px;
+            border-bottom: 2px solid var(--progress-bg);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            color: var(--accent-yellow);
+        }
+
+        /* Projects Layout grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 15px;
+        }
+
         .project-card {
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-card);
             border-radius: 8px;
-            padding: 15px;
+            padding: 12px;
             display: flex;
             align-items: center;
             gap: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             position: relative;
+            border: 1px solid #2d3548;
         }
 
         .project-icon-click {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background-color: var(--accent-orange);
             border-radius: 50%;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            border: 4px solid var(--accent-yellow);
+            border: 3px solid var(--accent-yellow);
             position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
         }
 
-        .project-icon-click:active {
-            transform: scale(0.95);
-        }
+        .project-icon-click:active { transform: scale(0.95); }
 
         .project-count {
             position: absolute;
-            bottom: -5px;
+            bottom: -6px;
             background: #000;
             color: #fff;
-            font-size: 12px;
-            padding: 2px 6px;
+            font-size: 11px;
+            padding: 2px 8px;
             border-radius: 10px;
             font-weight: bold;
+            border: 1px solid var(--accent-yellow);
         }
 
         .project-details {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .project-header {
             display: flex;
             justify-content: space-between;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
         }
 
-        .project-revenue {
-            color: var(--success-green);
-        }
+        .project-revenue { color: var(--success-green); }
 
         .progress-bar-container {
             width: 100%;
-            height: 24px;
+            height: 20px;
             background-color: var(--progress-bg);
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
             position: relative;
         }
@@ -177,25 +208,24 @@
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--accent-orange), var(--accent-yellow));
-            transition: width linear;
         }
 
         .progress-text {
             position: absolute;
             width: 100%;
             text-align: center;
-            top: 2px;
-            font-size: 13px;
+            top: 1px;
+            font-size: 12px;
             font-weight: bold;
             color: #fff;
             text-shadow: 1px 1px 2px #000;
         }
 
         .buy-button {
-            width: 140px;
+            width: 120px;
             height: 50px;
             background-color: var(--success-green);
-            color: white;
+            color: #000;
             border: none;
             border-radius: 6px;
             font-weight: bold;
@@ -204,27 +234,24 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 14px;
-            box-shadow: 0 4px 0 #2e7d32;
-        }
-
-        .buy-button:hidden {
-            display: none;
+            font-size: 13px;
+            box-shadow: 0 4px 0 #009624;
+            transition: opacity 0.2s;
         }
 
         .buy-button:active {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 #2e7d32;
+            box-shadow: 0 2px 0 #009624;
         }
 
         .buy-button:disabled {
-            background-color: #555;
-            box-shadow: 0 4px 0 #333;
+            background-color: #424242;
+            box-shadow: 0 4px 0 #212121;
+            color: #757575;
             cursor: not-allowed;
-            opacity: 0.6;
         }
 
-        /* Upgrades & Managers Grid */
+        /* Stores Grid */
         .store-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -232,15 +259,19 @@
         }
 
         .store-item {
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-card);
             padding: 15px;
             border-radius: 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            gap: 10px;
+            gap: 12px;
             border-left: 5px solid var(--accent-orange);
+            border: 1px solid #2d3548;
+            border-left-width: 5px;
         }
+
+        .store-item.investor-item { border-left-color: var(--prestige-purple); }
 
         .store-item h3 {
             font-size: 16px;
@@ -248,58 +279,81 @@
         }
 
         .store-item p {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
+            margin-top: 4px;
         }
 
         .store-btn {
             background-color: var(--accent-orange);
             color: #000;
             border: none;
-            padding: 8px;
+            padding: 10px;
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
+            transition: background 0.2s;
         }
 
         .store-btn:disabled {
-            background-color: #555;
-            color: var(--text-muted);
+            background-color: #424242;
+            color: #757575;
             cursor: not-allowed;
         }
 
-        .store-btn:not(:disabled):hover {
-            background-color: var(--accent-yellow);
+        .store-btn:not(:disabled):hover { background-color: var(--accent-yellow); }
+
+        .investor-btn { background-color: var(--prestige-purple); color: #000; }
+        .investor-btn:not(:disabled):hover { background-color: #d1c4e9; }
+
+        /* Prestige Screen Layout */
+        .prestige-box {
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 600px;
+            margin: 40px auto;
+            border: 2px solid var(--prestige-purple);
         }
 
-        /* Utility buttons layout */
-        .utils {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .util-btn {
-            background: none;
+        .prestige-box h3 { color: var(--prestige-purple); margin-bottom: 15px; font-size: 24px; }
+        .prestige-box p { margin-bottom: 20px; line-height: 1.6; color: var(--text-muted); }
+        
+        .big-prestige-btn {
+            background-color: var(--prestige-purple);
+            color: #000;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
             border: none;
-            color: var(--text-muted);
-            font-size: 11px;
+            border-radius: 8px;
             cursor: pointer;
-            text-align: left;
-            padding: 5px;
+            box-shadow: 0 6px 0 #7e57c2;
         }
+        .big-prestige-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #7e57c2; }
 
-        .util-btn:hover {
-            color: white;
-        }
+        .utils { margin-top: auto; display: flex; flex-direction: column; gap: 5px; }
+        .util-btn { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; text-align: left; padding: 5px; }
+        .util-btn:hover { color: white; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Construction Tycoon</h1>
-        <div id="corporate-funds">$0.00</div>
+        <div class="brand">
+            <h1>Construction Tycoon</h1>
+        </div>
+        <div class="stats-display">
+            <div class="stat-box">
+                <div class="label">Corporate Funds</div>
+                <div id="corporate-funds" class="value">$0.00</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Active Investors</div>
+                <div id="investor-count" class="value">0</div>
+            </div>
+        </div>
     </header>
 
     <div class="main-container">
@@ -307,6 +361,7 @@
             <button class="tab-btn active" onclick="switchTab('projects')">Projects</button>
             <button class="tab-btn" onclick="switchTab('upgrades')">Upgrades</button>
             <button class="tab-btn" onclick="switchTab('managers')">Managers</button>
+            <button class="tab-btn" id="tab-investors" onclick="switchTab('investors')" style="border-color: var(--prestige-purple);">Investors</button>
             
             <div class="utils">
                 <button class="util-btn" onclick="resetGame()">Hard Reset Game</button>
@@ -314,69 +369,115 @@
         </div>
 
         <div class="content-area">
-            <!-- Projects Panel -->
-            <div id="projects-panel" class="panel active"></div>
+            <div id="projects-panel" class="panel active">
+                <h2>Operations Pipelines</h2>
+                <div class="projects-grid" id="projects-target-grid"></div>
+            </div>
 
-            <!-- Upgrades Panel -->
             <div id="upgrades-panel" class="panel">
-                <h2>Corporate Upgrades</h2>
+                <h2>Corporate Acquisitions & Tech</h2>
                 <div class="store-grid" id="upgrades-grid"></div>
             </div>
 
-            <!-- Managers Panel -->
             <div id="managers-panel" class="panel">
-                <h2>Subcontractors & Managers</h2>
+                <h2>Operations Superintendents</h2>
                 <div class="store-grid" id="managers-grid"></div>
+            </div>
+
+            <div id="investors-panel" class="panel">
+                <h2>Venture Capital & Liquidation</h2>
+                <div class="prestige-box">
+                    <h3>Liquidate Assets for VC Backing</h3>
+                    <p>Forming a joint venture partnerships group requires selling off your physical asset contracts. In exchange, you pull in high-tier Wall Street Investors. Each active investor grants your entire operation a permanent <strong>+2% profit boost</strong>.</p>
+                    <div style="margin: 25px 0;">
+                        <div class="label" style="font-size:12px; text-transform:uppercase; color:var(--text-muted);">Investors Awaiting Signature</div>
+                        <div id="pending-investors" style="font-size:36px; font-weight:bold; color:var(--prestige-purple);">0</div>
+                    </div>
+                    <button class="big-prestige-btn" onclick="claimPrestige()">Liquidate & Restart</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Game State configuration
+        // Expanded Game Configuration Mechanics State
         let gameState = {
             money: 0,
+            totalMoneyEarned: 0,
+            investors: 0,
             lastSave: Date.now(),
             projects: {
                 pothole: { count: 1, automated: false, progress: 0, active: false },
                 housing: { count: 0, automated: false, progress: 0, active: false },
                 commercial: { count: 0, automated: false, progress: 0, active: false },
                 highway: { count: 0, automated: false, progress: 0, active: false },
-                skyscraper: { count: 0, automated: false, progress: 0, active: false }
+                skyscraper: { count: 0, automated: false, progress: 0, active: false },
+                subway: { count: 0, automated: false, progress: 0, active: false },
+                airport: { count: 0, automated: false, progress: 0, active: false },
+                bridge: { count: 0, automated: false, progress: 0, active: false },
+                powerplant: { count: 0, automated: false, progress: 0, active: false },
+                spaceport: { count: 0, automated: false, progress: 0, active: false }
             },
             upgrades: {},
             managers: {}
         };
 
-        // Static Game Balance Data
+        // Complete 10 Project Hierarchy Balance Tier Matrix
         const projectData = {
-            pothole: { id: 'pothole', name: 'Sidewalk Patching', baseCost: 4, costMultiplier: 1.07, baseRevenue: 1, duration: 600 },
-            housing: { id: 'housing', name: 'Residential Framing', baseCost: 60, costMultiplier: 1.15, baseRevenue: 60, duration: 3000 },
-            commercial: { id: 'commercial', name: 'Shopping Malls', baseCost: 720, costMultiplier: 1.14, baseRevenue: 540, duration: 6000 },
-            highway: { id: 'highway', name: 'Highway Expansion', baseCost: 8640, costMultiplier: 1.13, baseRevenue: 4320, duration: 12000 },
-            skyscraper: { id: 'skyscraper', name: 'Skyscraper Project', baseCost: 103680, costMultiplier: 1.12, baseRevenue: 51840, duration: 24000 }
+            pothole: { id: 'pothole', name: 'Sidewalk Patching', icon: '🕳️', baseCost: 4, costMultiplier: 1.07, baseRevenue: 1, duration: 600 },
+            housing: { id: 'housing', name: 'Residential Framing', icon: '🏡', baseCost: 60, costMultiplier: 1.15, baseRevenue: 60, duration: 3000 },
+            commercial: { id: 'commercial', name: 'Shopping Malls', icon: '🏢', baseCost: 720, costMultiplier: 1.14, baseRevenue: 540, duration: 6000 },
+            highway: { id: 'highway', name: 'Highway Infrastructure', icon: '🛣️', baseCost: 8640, costMultiplier: 1.13, baseRevenue: 4320, duration: 12000 },
+            skyscraper: { id: 'skyscraper', name: 'Skyscraper Builds', icon: '🏙️', baseCost: 103680, costMultiplier: 1.12, baseRevenue: 51840, duration: 24000 },
+            subway: { id: 'subway', name: 'Subway Transit Networks', icon: '🚇', baseCost: 1244160, costMultiplier: 1.11, baseRevenue: 622080, duration: 48000 },
+            airport: { id: 'airport', name: 'International Terminals', icon: '🛫', baseCost: 14929920, costMultiplier: 1.10, baseRevenue: 7464960, duration: 96000 },
+            bridge: { id: 'bridge', name: 'Suspension Bridges', icon: '🌉', baseCost: 179159040, costMultiplier: 1.09, baseRevenue: 89579520, duration: 192000 },
+            powerplant: { id: 'powerplant', name: 'Nuclear Power Arrays', icon: '⚛️', baseCost: 2149908480, costMultiplier: 1.08, baseRevenue: 1074954240, duration: 384000 },
+            spaceport: { id: 'spaceport', name: 'Orbital Spaceports', icon: '🚀', baseCost: 25798901760, costMultiplier: 1.07, baseRevenue: 29668737020, duration: 768000 }
         };
 
         const upgradeData = [
-            { id: 'up_pot_1', target: 'pothole', name: 'Premium Asphalt Mix', cost: 250, multiplier: 3, description: 'Sidewalk Patching profits x3' },
-            { id: 'up_hou_1', target: 'housing', name: 'Pneumatic Nail Guns', cost: 500, multiplier: 3, description: 'Residential Framing profits x3' },
-            { id: 'up_com_1', target: 'commercial', name: 'Pre-cast Concrete Blocks', cost: 1000, multiplier: 3, description: 'Shopping Malls profits x3' },
-            { id: 'up_all_1', target: 'all', name: 'Tax Write-offs', cost: 5000, multiplier: 2, description: 'All project profits x2' }
+            { id: 'up_pot_1', target: 'pothole', name: 'High-Velocity Asphalt Mix', cost: 250, multiplier: 3, description: 'Sidewalk Patching profits x3' },
+            { id: 'up_hou_1', target: 'housing', name: 'Pneumatic Framing Packs', cost: 1000, multiplier: 3, description: 'Residential Framing profits x3' },
+            { id: 'up_com_1', target: 'commercial', name: 'Pre-cast Concrete Structs', cost: 5000, multiplier: 3, description: 'Shopping Malls profits x3' },
+            { id: 'up_hi_1', target: 'highway', name: 'Automated Grader Rigs', cost: 25000, multiplier: 3, description: 'Highway Infra profits x3' },
+            { id: 'up_sky_1', target: 'skyscraper', name: 'High-Speed Tower Cranes', cost: 150000, multiplier: 3, description: 'Skyscrapers profits x3' },
+            { id: 'up_all_1', target: 'all', name: 'Federal Subsidies Loophole', cost: 1000000, multiplier: 2, description: 'All operational profits x2' },
+            { id: 'up_all_2', target: 'all', name: 'Offshore Holding Accounts', cost: 50000000, multiplier: 3, description: 'All operational profits x3' }
         ];
 
         const managerData = [
             { id: 'mgr_pothole', target: 'pothole', name: 'Concrete Foreperson', cost: 1000, description: 'Automates Sidewalk Patching' },
-            { id: 'mgr_housing', target: 'housing', name: 'Residential Superintendent', cost: 15000, description: 'Automates Residential Framing' },
+            { id: 'mgr_housing', target: 'housing', name: 'Residential Supervisor', cost: 15000, description: 'Automates Residential Framing' },
             { id: 'mgr_commercial', target: 'commercial', name: 'Commercial Project Mgr', cost: 100000, description: 'Automates Shopping Malls' },
-            { id: 'mgr_highway', target: 'highway', name: 'Civil Engineer Lead', cost: 500000, description: 'Automates Highway Expansion' },
-            { id: 'mgr_skyscraper', target: 'skyscraper', name: 'Chief Operations Officer', cost: 1200000, description: 'Automates Skyscrapers' }
+            { id: 'mgr_highway', target: 'highway', name: 'Civil Engineering Lead', cost: 500000, description: 'Automates Highway Infrastructure' },
+            { id: 'mgr_skyscraper', target: 'skyscraper', name: 'Metropolitan Developer', cost: 1200000, description: 'Automates Skyscraper Builds' },
+            { id: 'mgr_subway', target: 'subway', name: 'Transit Logistics Director', cost: 10000000, description: 'Automates Subway Transit Networks' },
+            { id: 'mgr_airport', target: 'airport', name: 'Aviation Framework VP', cost: 50000000, description: 'Automates International Terminals' },
+            { id: 'mgr_bridge', target: 'bridge', name: 'Structural Chief Inspector', cost: 250000000, description: 'Automates Suspension Bridges' },
+            { id: 'mgr_powerplant', target: 'powerplant', name: 'Energy Commission Liaison', cost: 1000000000, description: 'Automates Nuclear Power Arrays' },
+            { id: 'mgr_spaceport', target: 'spaceport', name: 'Aerospace Systems COO', cost: 25000000000, description: 'Automates Orbital Spaceports' }
         ];
 
         // Format Currency Helper
         function formatMoney(value) {
+            if (value >= 1e12) return '$' + (value / 1e12).toFixed(2) + ' Trillion';
+            if (value >= 1e9) return '$' + (value / 1e9).toFixed(2) + ' Billion';
+            if (value >= 1e6) return '$' + (value / 1e6).toFixed(2) + ' Million';
             return '$' + value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        // Get current dynamic upgrade multiplier for a project
+        // Calculate current speed factor based on unlocked milestone markers
+        function getProjectSpeedMultiplier(id) {
+            let count = gameState.projects[id].count;
+            let speedMult = 1;
+            if (count >= 100) speedMult *= 4;
+            else if (count >= 50) speedMult *= 2;
+            else if (count >= 25) speedMult *= 1.5;
+            return speedMult;
+        }
+
+        // Calculate dynamic upgrade and prestige multipliers combined
         function getProjectMultiplier(projectId) {
             let mult = 1;
             upgradeData.forEach(up => {
@@ -384,10 +485,11 @@
                     mult *= up.multiplier;
                 }
             });
-            return mult;
+            // Prestige Calculation Bonus Matrix: Each investor adds 2% total compounding output power
+            let investorBonus = 1 + (gameState.investors * 0.02);
+            return mult * investorBonus;
         }
 
-        // Calculation Helpers
         function getProjectCost(id) {
             const p = projectData[id];
             const count = gameState.projects[id].count;
@@ -400,180 +502,6 @@
             return p.baseRevenue * count * getProjectMultiplier(id);
         }
 
-        // UI Initialization
-        function initUI() {
-            // Render Projects
-            const panel = document.getElementById('projects-panel');
-            panel.innerHTML = '';
-            
-            Object.keys(projectData).forEach(id => {
-                const data = projectData[id];
-                const card = document.createElement('div');
-                card.className = 'project-card';
-                card.id = `card-${id}`;
-                card.innerHTML = `
-                    <div class="project-icon-click" onclick="startProject('${id}')">
-                        <span style="font-size:24px;">🏗️</span>
-                        <div class="project-count" id="count-${id}">0</div>
-                    </div>
-                    <div class="project-details">
-                        <div class="project-header">
-                            <span>${data.name}</span>
-                            <span class="project-revenue" id="revenue-${id}">$0.00</span>
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-fill" id="progress-${id}"></div>
-                            <div class="progress-text" id="timer-${id}">0.0s</div>
-                        </div>
-                    </div>
-                    <button class="buy-button" id="buy-${id}" onclick="buyProject('${id}')">
-                        <span>Buy +1</span>
-                        <span id="cost-${id}" style="font-size:11px;">$0.00</span>
-                    </button>
-                `;
-                panel.appendChild(card);
-            });
-
-            // Render Upgrades
-            const upGrid = document.getElementById('upgrades-grid');
-            upGrid.innerHTML = '';
-            upgradeData.forEach(up => {
-                const item = document.createElement('div');
-                item.className = 'store-item';
-                item.id = `store-up-${up.id}`;
-                item.innerHTML = `
-                    <div>
-                        <h3>${up.name}</h3>
-                        <p>${up.description}</p>
-                    </div>
-                    <button class="store-btn" id="btn-up-${up.id}" onclick="buyUpgrade('${up.id}')">Buy: ${formatMoney(up.cost)}</button>
-                `;
-                upGrid.appendChild(item);
-            });
-
-            // Render Managers
-            const mgrGrid = document.getElementById('managers-grid');
-            mgrGrid.innerHTML = '';
-            managerData.forEach(mgr => {
-                const item = document.createElement('div');
-                item.className = 'store-item';
-                item.id = `store-mgr-${mgr.id}`;
-                item.innerHTML = `
-                    <div>
-                        <h3>${mgr.name}</h3>
-                        <p>${mgr.description}</p>
-                    </div>
-                    <button class="store-btn" id="btn-mgr-${mgr.id}" onclick="buyManager('${mgr.id}')">Hire: ${formatMoney(mgr.cost)}</button>
-                `;
-                mgrGrid.appendChild(item);
-            });
-        }
-
-        // Interface Navigation Tabs
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(`${tabId}-panel`).classList.add('active');
-        }
-
-        // Core Game Loops & Actions
-        function startProject(id) {
-            let state = gameState.projects[id];
-            if (state.count > 0 && !state.active) {
-                state.active = true;
-                state.progress = 0;
-            }
-        }
-
-        function buyProject(id) {
-            let cost = getProjectCost(id);
-            if (gameState.money >= cost) {
-                gameState.money -= cost;
-                gameState.projects[id].count++;
-                updateUI();
-                saveGame();
-            }
-        }
-
-        function buyUpgrade(id) {
-            const up = upgradeData.find(u => u.id === id);
-            if (gameState.money >= up.cost && !gameState.upgrades[id]) {
-                gameState.money -= up.cost;
-                gameState.upgrades[id] = true;
-                updateUI();
-                saveGame();
-            }
-        }
-
-        function buyManager(id) {
-            const mgr = managerData.find(m => m.id === id);
-            if (gameState.money >= mgr.cost && !gameState.managers[id]) {
-                gameState.money -= mgr.cost;
-                gameState.managers[id] = true;
-                gameState.projects[mgr.target].automated = true;
-                updateUI();
-                saveGame();
-            }
-        }
-
-        // Main Refresh Loop UI updates
-        function updateUI() {
-            document.getElementById('corporate-funds').innerText = formatMoney(gameState.money);
-
-            Object.keys(projectData).forEach(id => {
-                const pState = gameState.projects[id];
-                const cost = getProjectCost(id);
-                
-                document.getElementById(`count-${id}`).innerText = pState.count;
-                document.getElementById(`revenue-${id}`).innerText = formatMoney(getProjectRevenue(id));
-                document.getElementById(`cost-${id}`).innerText = formatMoney(cost);
-                
-                const buyBtn = document.getElementById(`buy-${id}`);
-                buyBtn.disabled = gameState.money < cost;
-
-                // Hide project layout card if user hasn't unlocked it yet
-                const card = document.getElementById(`card-${id}`);
-                if (pState.count === 0 && id !== 'pothole') {
-                    buyBtn.style.width = "100%";
-                    card.querySelector('.project-icon-click').style.opacity = '0.4';
-                } else {
-                    buyBtn.style.width = "140px";
-                    card.querySelector('.project-icon-click').style.opacity = '1';
-                }
-            });
-
-            // Toggle shop item state structures
-            upgradeData.forEach(up => {
-                const btn = document.getElementById(`btn-up-${up.id}`);
-                if (gameState.upgrades[up.id]) {
-                    btn.innerText = "Acquired";
-                    btn.disabled = true;
-                } else {
-                    btn.disabled = gameState.money < up.cost;
-                }
-            });
-
-            managerData.forEach(mgr => {
-                const btn = document.getElementById(`btn-mgr-${mgr.id}`);
-                if (gameState.managers[mgr.id]) {
-                    btn.innerText = "Hired";
-                    btn.disabled = true;
-                } else {
-                    btn.disabled = gameState.money < mgr.cost;
-                }
-            });
-        }
-
-        // Clock Ticks processing engine updates
-        let lastTime = performance.now();
-        function gameTick(time) {
-            let delta = time - lastTime;
-            lastTime = time;
-
-            Object.keys(projectData).forEach(id => {
-                let state = gameState.projects[id];
-                let data = projectData[id];
-
-                if (state.count > 0 && s
+        // Math algorithm to track pending prestige tokens based on overall historical yield performance
+        function calculatePendingInvestors() {
+            if (gameState
