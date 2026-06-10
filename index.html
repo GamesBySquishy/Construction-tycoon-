@@ -107,7 +107,6 @@
             color: #000;
         }
 
-        /* Scale Multiplier Toggle Button Styling */
         .multiplier-container {
             margin: 10px 0;
             border-top: 1px solid var(--progress-bg);
@@ -288,7 +287,6 @@
             cursor: not-allowed;
         }
 
-        /* Stores Layout */
         .store-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -421,9 +419,8 @@
     </div>
 
     <script>
-        // Scaling Control Engine Variables
         const validMultipliers = ['1', '10', '100', 'MAX'];
-        let currentMultiplierIndex = 0; // Pointing to index array configurations
+        let currentMultiplierIndex = 0;
 
         let gameState = {
             money: 0,
@@ -452,4 +449,64 @@
             commercial: { id: 'commercial', name: 'Shopping Malls', icon: '🏢', baseCost: 720, costMultiplier: 1.14, baseRevenue: 540, duration: 6000 },
             highway: { id: 'highway', name: 'Highway Infrastructure', icon: '🛣️', baseCost: 8640, costMultiplier: 1.13, baseRevenue: 4320, duration: 12000 },
             skyscraper: { id: 'skyscraper', name: 'Skyscraper Builds', icon: '🏙️', baseCost: 103680, costMultiplier: 1.12, baseRevenue: 51840, duration: 24000 },
-            subway: { id: 'subway', name: 'Subway Transit Networks', icon: '🚇', baseCost: 1244160, costMultiplier: 1.11, baseRevenue: 6220
+            subway: { id: 'subway', name: 'Subway Transit Networks', icon: '🚇', baseCost: 1244160, costMultiplier: 1.11, baseRevenue: 622080, duration: 48000 },
+            airport: { id: 'airport', name: 'International Terminals', icon: '🛫', baseCost: 14929920, costMultiplier: 1.10, baseRevenue: 7464960, duration: 96000 },
+            bridge: { id: 'bridge', name: 'Suspension Bridges', icon: '🌉', baseCost: 179159040, costMultiplier: 1.09, baseRevenue: 89579520, duration: 192000 },
+            powerplant: { id: 'powerplant', name: 'Nuclear Power Arrays', icon: '⚛️', baseCost: 2149908480, costMultiplier: 1.08, baseRevenue: 1074954240, duration: 384000 },
+            spaceport: { id: 'spaceport', name: 'Orbital Spaceports', icon: '🚀', baseCost: 25798901760, costMultiplier: 1.07, baseRevenue: 29668737020, duration: 768000 }
+        };
+
+        const upgradeData = [
+            { id: 'up_pot_1', target: 'pothole', name: 'High-Velocity Asphalt Mix', cost: 250, multiplier: 3, description: 'Sidewalk Patching profits x3' },
+            { id: 'up_hou_1', target: 'housing', name: 'Pneumatic Framing Packs', cost: 1000, multiplier: 3, description: 'Residential Framing profits x3' },
+            { id: 'up_com_1', target: 'commercial', name: 'Pre-cast Concrete Structs', cost: 5000, multiplier: 3, description: 'Shopping Malls profits x3' },
+            { id: 'up_hi_1', target: 'highway', name: 'Automated Grader Rigs', cost: 25000, multiplier: 3, description: 'Highway Infra profits x3' },
+            { id: 'up_sky_1', target: 'skyscraper', name: 'High-Speed Tower Cranes', cost: 150000, multiplier: 3, description: 'Skyscrapers profits x3' },
+            { id: 'up_all_1', target: 'all', name: 'Federal Subsidies Loophole', cost: 1000000, multiplier: 2, description: 'All operational profits x2' },
+            { id: 'up_all_2', target: 'all', name: 'Offshore Holding Accounts', cost: 50000000, multiplier: 3, description: 'All operational profits x3' }
+        ];
+
+        // FIXED: Prefixed remaining manager IDs with 'mgr_' to guarantee exact variable mapping matching
+        const managerData = [
+            { id: 'mgr_pothole', target: 'pothole', name: 'Concrete Foreperson', cost: 1000, description: 'Automates Sidewalk Patching' },
+            { id: 'mgr_housing', target: 'housing', name: 'Residential Supervisor', cost: 15000, description: 'Automates Residential Framing' },
+            { id: 'mgr_commercial', target: 'commercial', name: 'Commercial Project Mgr', cost: 100000, description: 'Automates Shopping Malls' },
+            { id: 'mgr_highway', target: 'highway', name: 'Civil Engineering Lead', cost: 500000, description: 'Automates Highway Infrastructure' },
+            { id: 'mgr_skyscraper', target: 'skyscraper', name: 'Metropolitan Developer', cost: 1200000, description: 'Automates Skyscraper Builds' },
+            { id: 'mgr_subway', target: 'subway', name: 'Transit Logistics Director', cost: 10000000, description: 'Automates Subway Transit Networks' },
+            { id: 'mgr_airport', target: 'airport', name: 'Aviation Framework VP', cost: 50000000, description: 'Automates International Terminals' },
+            { id: 'mgr_bridge', target: 'bridge', name: 'Structural Chief Inspector', cost: 250000000, description: 'Automates Suspension Bridges' },
+            { id: 'mgr_powerplant', target: 'powerplant', name: 'Energy Commission Liaison', cost: 1000000000, description: 'Automates Nuclear Power Arrays' },
+            { id: 'mgr_spaceport', target: 'spaceport', name: 'Aerospace Systems COO', cost: 25000000000, description: 'Automates Orbital Spaceports' }
+        ];
+
+        function formatMoney(value) {
+            if (value >= 1e12) return '$' + (value / 1e12).toFixed(2) + ' Trillion';
+            if (value >= 1e9) return '$' + (value / 1e9).toFixed(2) + ' Billion';
+            if (value >= 1e6) return '$' + (value / 1e6).toFixed(2) + ' Million';
+            return '$' + value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function toggleBuyMultiplier() {
+            currentMultiplierIndex = (currentMultiplierIndex + 1) % validMultipliers.length;
+            document.getElementById('buy-multiplier-btn').innerText = `BUY x${validMultipliers[currentMultiplierIndex]}`;
+            updateUI();
+        }
+
+        function getProjectSpeedMultiplier(id) {
+            let count = gameState.projects[id].count;
+            let speedMult = 1;
+            if (count >= 100) speedMult *= 4;
+            else if (count >= 50) speedMult *= 2;
+            else if (count >= 25) speedMult *= 1.5;
+            return speedMult;
+        }
+
+        function getProjectMultiplier(projectId) {
+            let mult = 1;
+            upgradeData.forEach(up => {
+                if (gameState.upgrades[up.id] && (up.target === projectId || up.target === 'all')) {
+                    mult *= up.multiplier;
+                }
+            });
+            let investorBonus = 1 + (gameState.investors * 0.02
