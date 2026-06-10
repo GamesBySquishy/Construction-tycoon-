@@ -107,6 +107,42 @@
             color: #000;
         }
 
+        /* Scale Multiplier Toggle Button Styling */
+        .multiplier-container {
+            margin: 10px 0;
+            border-top: 1px solid var(--progress-bg);
+            border-bottom: 1px solid var(--progress-bg);
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .multiplier-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        #buy-multiplier-btn {
+            background-color: var(--bg-card);
+            color: var(--accent-orange);
+            border: 2px solid var(--accent-orange);
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        #buy-multiplier-btn:hover {
+            background-color: var(--accent-orange);
+            color: #000;
+        }
+
         .content-area {
             flex: 1;
             padding: 20px;
@@ -132,28 +168,27 @@
             color: var(--accent-yellow);
         }
 
-        /* Projects Layout grid */
         .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 15px;
         }
 
         .project-card {
             background-color: var(--bg-card);
             border-radius: 8px;
-            padding: 12px;
+            padding: 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             position: relative;
             border: 1px solid #2d3548;
         }
 
         .project-icon-click {
-            width: 70px;
-            height: 70px;
+            width: 75px;
+            height: 75px;
             background-color: var(--accent-orange);
             border-radius: 50%;
             display: flex;
@@ -163,6 +198,7 @@
             border: 3px solid var(--accent-yellow);
             position: relative;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+            flex-shrink: 0;
         }
 
         .project-icon-click:active { transform: scale(0.95); }
@@ -183,25 +219,26 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
 
         .project-header {
             display: flex;
             justify-content: space-between;
             font-weight: bold;
-            font-size: 15px;
+            font-size: 16px;
         }
 
         .project-revenue { color: var(--success-green); }
 
         .progress-bar-container {
             width: 100%;
-            height: 20px;
+            height: 24px;
             background-color: var(--progress-bg);
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
+            border: 1px solid #1a1d26;
         }
 
         .progress-fill {
@@ -214,7 +251,7 @@
             position: absolute;
             width: 100%;
             text-align: center;
-            top: 1px;
+            top: 3px;
             font-size: 12px;
             font-weight: bold;
             color: #fff;
@@ -222,8 +259,8 @@
         }
 
         .buy-button {
-            width: 120px;
-            height: 50px;
+            width: 160px;
+            height: 55px;
             background-color: var(--success-green);
             color: #000;
             border: none;
@@ -234,9 +271,9 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 13px;
+            font-size: 14px;
             box-shadow: 0 4px 0 #009624;
-            transition: opacity 0.2s;
+            flex-shrink: 0;
         }
 
         .buy-button:active {
@@ -251,7 +288,7 @@
             cursor: not-allowed;
         }
 
-        /* Stores Grid */
+        /* Stores Layout */
         .store-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -271,18 +308,8 @@
             border-left-width: 5px;
         }
 
-        .store-item.investor-item { border-left-color: var(--prestige-purple); }
-
-        .store-item h3 {
-            font-size: 16px;
-            color: var(--accent-yellow);
-        }
-
-        .store-item p {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
+        .store-item h3 { font-size: 16px; color: var(--accent-yellow); }
+        .store-item p { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
         .store-btn {
             background-color: var(--accent-orange);
@@ -292,21 +319,10 @@
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
-        .store-btn:disabled {
-            background-color: #424242;
-            color: #757575;
-            cursor: not-allowed;
-        }
+        .store-btn:disabled { background-color: #424242; color: #757575; cursor: not-allowed; }
 
-        .store-btn:not(:disabled):hover { background-color: var(--accent-yellow); }
-
-        .investor-btn { background-color: var(--prestige-purple); color: #000; }
-        .investor-btn:not(:disabled):hover { background-color: #d1c4e9; }
-
-        /* Prestige Screen Layout */
         .prestige-box {
             background-color: var(--bg-card);
             padding: 30px;
@@ -331,7 +347,6 @@
             cursor: pointer;
             box-shadow: 0 6px 0 #7e57c2;
         }
-        .big-prestige-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #7e57c2; }
 
         .utils { margin-top: auto; display: flex; flex-direction: column; gap: 5px; }
         .util-btn { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; text-align: left; padding: 5px; }
@@ -359,6 +374,12 @@
     <div class="main-container">
         <div class="sidebar">
             <button class="tab-btn active" onclick="switchTab('projects')">Projects</button>
+            
+            <div class="multiplier-container">
+                <div class="multiplier-label">Buy Multiplier</div>
+                <button id="buy-multiplier-btn" onclick="toggleBuyMultiplier()">BUY x1</button>
+            </div>
+
             <button class="tab-btn" onclick="switchTab('upgrades')">Upgrades</button>
             <button class="tab-btn" onclick="switchTab('managers')">Managers</button>
             <button class="tab-btn" id="tab-investors" onclick="switchTab('investors')" style="border-color: var(--prestige-purple);">Investors</button>
@@ -400,7 +421,10 @@
     </div>
 
     <script>
-        // Expanded Game Configuration Mechanics State
+        // Scaling Control Engine Variables
+        const validMultipliers = ['1', '10', '100', 'MAX'];
+        let currentMultiplierIndex = 0; // Pointing to index array configurations
+
         let gameState = {
             money: 0,
             totalMoneyEarned: 0,
@@ -422,86 +446,10 @@
             managers: {}
         };
 
-        // Complete 10 Project Hierarchy Balance Tier Matrix
         const projectData = {
             pothole: { id: 'pothole', name: 'Sidewalk Patching', icon: '🕳️', baseCost: 4, costMultiplier: 1.07, baseRevenue: 1, duration: 600 },
             housing: { id: 'housing', name: 'Residential Framing', icon: '🏡', baseCost: 60, costMultiplier: 1.15, baseRevenue: 60, duration: 3000 },
             commercial: { id: 'commercial', name: 'Shopping Malls', icon: '🏢', baseCost: 720, costMultiplier: 1.14, baseRevenue: 540, duration: 6000 },
             highway: { id: 'highway', name: 'Highway Infrastructure', icon: '🛣️', baseCost: 8640, costMultiplier: 1.13, baseRevenue: 4320, duration: 12000 },
             skyscraper: { id: 'skyscraper', name: 'Skyscraper Builds', icon: '🏙️', baseCost: 103680, costMultiplier: 1.12, baseRevenue: 51840, duration: 24000 },
-            subway: { id: 'subway', name: 'Subway Transit Networks', icon: '🚇', baseCost: 1244160, costMultiplier: 1.11, baseRevenue: 622080, duration: 48000 },
-            airport: { id: 'airport', name: 'International Terminals', icon: '🛫', baseCost: 14929920, costMultiplier: 1.10, baseRevenue: 7464960, duration: 96000 },
-            bridge: { id: 'bridge', name: 'Suspension Bridges', icon: '🌉', baseCost: 179159040, costMultiplier: 1.09, baseRevenue: 89579520, duration: 192000 },
-            powerplant: { id: 'powerplant', name: 'Nuclear Power Arrays', icon: '⚛️', baseCost: 2149908480, costMultiplier: 1.08, baseRevenue: 1074954240, duration: 384000 },
-            spaceport: { id: 'spaceport', name: 'Orbital Spaceports', icon: '🚀', baseCost: 25798901760, costMultiplier: 1.07, baseRevenue: 29668737020, duration: 768000 }
-        };
-
-        const upgradeData = [
-            { id: 'up_pot_1', target: 'pothole', name: 'High-Velocity Asphalt Mix', cost: 250, multiplier: 3, description: 'Sidewalk Patching profits x3' },
-            { id: 'up_hou_1', target: 'housing', name: 'Pneumatic Framing Packs', cost: 1000, multiplier: 3, description: 'Residential Framing profits x3' },
-            { id: 'up_com_1', target: 'commercial', name: 'Pre-cast Concrete Structs', cost: 5000, multiplier: 3, description: 'Shopping Malls profits x3' },
-            { id: 'up_hi_1', target: 'highway', name: 'Automated Grader Rigs', cost: 25000, multiplier: 3, description: 'Highway Infra profits x3' },
-            { id: 'up_sky_1', target: 'skyscraper', name: 'High-Speed Tower Cranes', cost: 150000, multiplier: 3, description: 'Skyscrapers profits x3' },
-            { id: 'up_all_1', target: 'all', name: 'Federal Subsidies Loophole', cost: 1000000, multiplier: 2, description: 'All operational profits x2' },
-            { id: 'up_all_2', target: 'all', name: 'Offshore Holding Accounts', cost: 50000000, multiplier: 3, description: 'All operational profits x3' }
-        ];
-
-        const managerData = [
-            { id: 'mgr_pothole', target: 'pothole', name: 'Concrete Foreperson', cost: 1000, description: 'Automates Sidewalk Patching' },
-            { id: 'mgr_housing', target: 'housing', name: 'Residential Supervisor', cost: 15000, description: 'Automates Residential Framing' },
-            { id: 'mgr_commercial', target: 'commercial', name: 'Commercial Project Mgr', cost: 100000, description: 'Automates Shopping Malls' },
-            { id: 'mgr_highway', target: 'highway', name: 'Civil Engineering Lead', cost: 500000, description: 'Automates Highway Infrastructure' },
-            { id: 'mgr_skyscraper', target: 'skyscraper', name: 'Metropolitan Developer', cost: 1200000, description: 'Automates Skyscraper Builds' },
-            { id: 'mgr_subway', target: 'subway', name: 'Transit Logistics Director', cost: 10000000, description: 'Automates Subway Transit Networks' },
-            { id: 'mgr_airport', target: 'airport', name: 'Aviation Framework VP', cost: 50000000, description: 'Automates International Terminals' },
-            { id: 'mgr_bridge', target: 'bridge', name: 'Structural Chief Inspector', cost: 250000000, description: 'Automates Suspension Bridges' },
-            { id: 'mgr_powerplant', target: 'powerplant', name: 'Energy Commission Liaison', cost: 1000000000, description: 'Automates Nuclear Power Arrays' },
-            { id: 'mgr_spaceport', target: 'spaceport', name: 'Aerospace Systems COO', cost: 25000000000, description: 'Automates Orbital Spaceports' }
-        ];
-
-        // Format Currency Helper
-        function formatMoney(value) {
-            if (value >= 1e12) return '$' + (value / 1e12).toFixed(2) + ' Trillion';
-            if (value >= 1e9) return '$' + (value / 1e9).toFixed(2) + ' Billion';
-            if (value >= 1e6) return '$' + (value / 1e6).toFixed(2) + ' Million';
-            return '$' + value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        // Calculate current speed factor based on unlocked milestone markers
-        function getProjectSpeedMultiplier(id) {
-            let count = gameState.projects[id].count;
-            let speedMult = 1;
-            if (count >= 100) speedMult *= 4;
-            else if (count >= 50) speedMult *= 2;
-            else if (count >= 25) speedMult *= 1.5;
-            return speedMult;
-        }
-
-        // Calculate dynamic upgrade and prestige multipliers combined
-        function getProjectMultiplier(projectId) {
-            let mult = 1;
-            upgradeData.forEach(up => {
-                if (gameState.upgrades[up.id] && (up.target === projectId || up.target === 'all')) {
-                    mult *= up.multiplier;
-                }
-            });
-            // Prestige Calculation Bonus Matrix: Each investor adds 2% total compounding output power
-            let investorBonus = 1 + (gameState.investors * 0.02);
-            return mult * investorBonus;
-        }
-
-        function getProjectCost(id) {
-            const p = projectData[id];
-            const count = gameState.projects[id].count;
-            return Math.round(p.baseCost * Math.pow(p.costMultiplier, count));
-        }
-
-        function getProjectRevenue(id) {
-            const p = projectData[id];
-            const count = gameState.projects[id].count;
-            return p.baseRevenue * count * getProjectMultiplier(id);
-        }
-
-        // Math algorithm to track pending prestige tokens based on overall historical yield performance
-        function calculatePendingInvestors() {
-            if (gameState
+            subway: { id: 'subway', name: 'Subway Transit Networks', icon: '🚇', baseCost: 1244160, costMultiplier: 1.11, baseRevenue: 6220
