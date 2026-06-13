@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Tycoon</title>
+    <style>
+        body {
+            background-color: #1e222b;
+            color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #f59e0b;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .stats-panel {
+            background-color: #2d3748;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .stat-line {
+            font-size: 1.2rem;
+            margin: 5px 0;
+        }
+        .highlight {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .action-btn {
+            display: block;
+            width: 100%;
+            background-color: #f59e0b;
+            color: #111827;
+            border: none;
+            padding: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+            margin-bottom: 25px;
+        }
+        .action-btn:hover {
+            background-color: #d97706;
+        }
+        .upgrade-section {
+            background-color: #2d3748;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #4a5568;
+        }
+        .upgrade-item:last-child {
+            border-bottom: none;
+        }
+        .upgrade-info p {
+            margin: 0;
+        }
+        .upgrade-name {
+            font-weight: bold;
+            font-size: 1.05rem;
+        }
+        .upgrade-desc {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+        .buy-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .buy-btn:hover {
+            background-color: #059669;
+        }
+        .buy-btn:disabled {
+            background-color: #4a5568;
+            color: #718096;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🏗️ Construction Tycoon</h1>
+        <p>From Hand Tools to Skyscrapers</p>
+    </div>
+
+    <div class="stats-panel">
+        <div class="stat-line">Available Capital: <span id="cash-display" class="highlight">$0</span></div>
+        <div class="stat-line">Company Revenue: <span id="ips-display" class="highlight">$0</span> / sec</div>
+    </div>
+
+    <button class="action-btn" id="click-btn">Haul Materials (+ $1)</button>
+
+    <div class="upgrade-section">
+        <h3>Expand Operations</h3>
+        
+        <!-- Upgrade Tier 1 -->
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <p class="upgrade-name">Hire Laborer (<span id="count-laborer">0</span>)</p>
+                <p class="upgrade-desc">+ $1/sec • Hand tools & manual labor</p>
+            </div>
+            <button class="buy-btn" id="buy-laborer">Cost: $15</button>
+        </div>
+
+        <!-- Upgrade Tier 2 -->
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <p class="upgrade-name">Lease Skid Steer (<span id="count-bobcat">0</span>)</p>
+                <p class="upgrade-desc">+ $8/sec • Light mechanical earthmoving</p>
+            </div>
+            <button class="buy-btn" id="buy-bobcat">Cost: $100</button>
+        </div>
+
+        <!-- Upgrade Tier 3 -->
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <p class="upgrade-name">Subcontract Excavator (<span id="count-excavator">0</span>)</p>
+                <p class="upgrade-desc">+ $50/sec • Serious commercial site prep</p>
+            </div>
+            <button class="buy-btn" id="buy-excavator">Cost: $1,100</button>
+        </div>
+    </div>
+
+    <script>
+        // --- GAME STATE ---
+        let gameData = {
+            cash: 0,
+            clickValue: 1,
+            upgrades: {
+                laborer:   { count: 0, baseCost: 15,   costMultiplier: 1.15, revenue: 1 },
+                bobcat:    { count: 0, baseCost: 100,  costMultiplier: 1.15, revenue: 8 },
+                excavator: { count: 0, baseCost: 1100, costMultiplier: 1.15, revenue: 50 }
+            }
+        };
+
+        // --- CORE MATH FORMULAS ---
+        function getUpgradeCost(upgradeKey) {
+            let up = gameData.upgrades[upgradeKey];
+            return Math.floor(up.baseCost * Math.pow(up.costMultiplier, up.count));
+        }
+
+        function getIncomePerSecond() {
+            let totalIPS = 0;
+            for (let key in gameData.upgrades) {
+                let up = gameData.upgrades[key];
+                totalIPS += up.count * up.revenue;
+            }
+            return totalIPS;
+        }
+
+        // --- UI COORDNIATION ---
+        function updateUI() {
+            // Update main displays
+            document.getElementById('cash-display').innerText = "$" + Math.floor(gameData.cash).toLocaleString();
+            document.getElementById('ips-display').innerText = "$" + getIncomePerSecond().toLocaleString();
+
+            // Update individual upgrade buttons and counts
+            for (let key in gameData.upgrades) {
+                let cost = getUpgradeCost(key);
+                let btn = document.getElementById('buy-' + key);
+                
+                document.getElementById('count-' + key).innerText = gameData.upgrades[key].count;
+                btn.innerText = "Cost: $" + cost.toLocaleString();
+                
+                // Disable button if user doesn't have enough money
+                btn.disabled = (gameData.cash < cost);
+            }
+        }
+
+        // --- INTERACTION LOGIC ---
+        document.getElementById('click-btn').addEventListener('click', () => {
+            gameData.cash += gameData.clickValue;
+            updateUI();
+        });
+
+        function setupBuyListener(key) {
+            document.getElementById('buy-' + key).addEventListener('click', () => {
+                let cost = getUpgradeCost(key);
+                if (gameData.cash >= cost) {
+                    gameData.cash -= cost;
+                    gameData.upgrades[key].count++;
+                    updateUI();
+                }
+            });
+        }
+
+        setupBuyListener('laborer');
+        setupBuyListener('bobcat');
+        setupBuyListener('excavator');
+
+        // --- GAME LOOPS ---
+        // Main logic loop: Runs exactly 1 time per second
+        setInterval(() => {
+            gameData.cash += getIncomePerSecond();
+            updateUI();
+        }, 1000);
+
+        // Initialize UI display on startup
+        updateUI();
+    </script>
+</body>
+</html>
