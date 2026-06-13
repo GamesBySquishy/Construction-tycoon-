@@ -3,36 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Construction Tycoon</title>
+    <title>Construction Tycoon Pro</title>
     <style>
         body {
-            background-color: #1e222b;
+            background-color: #1a1d24;
             color: #f3f4f6;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
         }
         .header {
             text-align: center;
-            border-bottom: 3px solid #f59e0b;
+            border-bottom: 4px solid #f59e0b;
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
         .stats-panel {
-            background-color: #2d3748;
-            padding: 15px;
+            background-color: #242b35;
+            padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
         }
-        .stat-line {
-            font-size: 1.2rem;
-            margin: 5px 0;
-        }
-        .highlight {
+        .stat-box h2 {
+            margin: 0;
+            font-size: 1.8rem;
             color: #f59e0b;
-            font-weight: bold;
+        }
+        .stat-box p {
+            margin: 5px 0 0 0;
+            color: #9ca3af;
+            font-size: 0.9rem;
+            text-transform: uppercase;
         }
         .action-btn {
             display: block;
@@ -40,29 +46,32 @@
             background-color: #f59e0b;
             color: #111827;
             border: none;
-            padding: 15px;
-            font-size: 1.3rem;
+            padding: 18px;
+            font-size: 1.4rem;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
             text-transform: uppercase;
-            transition: background 0.2s;
+            transition: all 0.1s ease;
             margin-bottom: 25px;
+            box-shadow: 0 4px 0 #b45309;
         }
-        .action-btn:hover {
-            background-color: #d97706;
+        .action-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #b45309;
         }
         .upgrade-section {
-            background-color: #2d3748;
+            background-color: #242b35;
             padding: 15px;
             border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
         .upgrade-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #4a5568;
+            padding: 14px 0;
+            border-bottom: 1px solid #374151;
         }
         .upgrade-item:last-child {
             border-bottom: none;
@@ -72,152 +81,226 @@
         }
         .upgrade-name {
             font-weight: bold;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
         }
         .upgrade-desc {
             font-size: 0.85rem;
-            color: #a0aec0;
+            color: #9ca3af;
+            margin-top: 2px !important;
         }
         .buy-btn {
             background-color: #10b981;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 1rem;
+            min-width: 160px;
+            text-align: center;
         }
         .buy-btn:hover {
             background-color: #059669;
         }
         .buy-btn:disabled {
-            background-color: #4a5568;
-            color: #718096;
+            background-color: #374151;
+            color: #6b7280;
             cursor: not-allowed;
+        }
+        .footer-controls {
+            margin-top: 15px;
+            text-align: right;
+        }
+        .reset-btn {
+            background: none;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .reset-btn:hover {
+            background-color: #ef4444;
+            color: white;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>🏗️ Construction Tycoon</h1>
-        <p>From Hand Tools to Skyscrapers</p>
+        <h1>🏗️ Construction Tycoon Pro</h1>
+        <p>Heavy Equipment & Enterprise Infrastructure Architecture</p>
     </div>
 
     <div class="stats-panel">
-        <div class="stat-line">Available Capital: <span id="cash-display" class="highlight">$0</span></div>
-        <div class="stat-line">Company Revenue: <span id="ips-display" class="highlight">$0</span> / sec</div>
+        <div class="stat-box">
+            <h2 id="cash-display">$0</h2>
+            <p>Available Capital</p>
+        </div>
+        <div class="stat-box">
+            <h2 id="ips-display">$0</h2>
+            <p>Revenue / Sec</p>
+        </div>
     </div>
 
-    <button class="action-btn" id="click-btn">Haul Materials (+ $1)</button>
+    <button class="action-btn" id="click-btn">Break Ground & Haul Dirt (+ $1)</button>
 
     <div class="upgrade-section">
-        <h3>Expand Operations</h3>
+        <h3 style="margin-top: 0; border-bottom: 2px solid #374151; padding-bottom: 8px;">Asset Procurement Pipeline</h3>
         
-        <!-- Upgrade Tier 1 -->
-        <div class="upgrade-item">
-            <div class="upgrade-info">
-                <p class="upgrade-name">Hire Laborer (<span id="count-laborer">0</span>)</p>
-                <p class="upgrade-desc">+ $1/sec • Hand tools & manual labor</p>
+        <div id="upgrades-container">
             </div>
-            <button class="buy-btn" id="buy-laborer">Cost: $15</button>
-        </div>
+    </div>
 
-        <!-- Upgrade Tier 2 -->
-        <div class="upgrade-item">
-            <div class="upgrade-info">
-                <p class="upgrade-name">Lease Skid Steer (<span id="count-bobcat">0</span>)</p>
-                <p class="upgrade-desc">+ $8/sec • Light mechanical earthmoving</p>
-            </div>
-            <button class="buy-btn" id="buy-bobcat">Cost: $100</button>
-        </div>
-
-        <!-- Upgrade Tier 3 -->
-        <div class="upgrade-item">
-            <div class="upgrade-info">
-                <p class="upgrade-name">Subcontract Excavator (<span id="count-excavator">0</span>)</p>
-                <p class="upgrade-desc">+ $50/sec • Serious commercial site prep</p>
-            </div>
-            <button class="buy-btn" id="buy-excavator">Cost: $1,100</button>
-        </div>
+    <div class="footer-controls">
+        <button class="reset-btn" onclick="resetGame()">Wipe Save Data</button>
     </div>
 
     <script>
-        // --- GAME STATE ---
+        // --- DATA ARCHITECTURE ---
+        const config = {
+            laborer:    { name: "Manual Laborer",        baseCost: 15,          revenue: 1,         desc: "Hand tools & ground prep" },
+            bobcat:     { name: "Skid Steer (Bobcat)",   baseCost: 150,         revenue: 8,         desc: "Light grading operations" },
+            excavator:  { name: "Mini Excavator",        baseCost: 1500,        revenue: 70,        desc: "Utility trenching setups" },
+            mixer:      { name: "Concrete Mixer Truck",  baseCost: 15000,       revenue: 600,       desc: "Foundations & structural slabs" },
+            bulldozer:  { name: "All-Terrain Bulldozer", baseCost: 17500,      revenue: 5500,      desc: "Massive scale earthmoving site work" },
+            crane:      { name: "Tower Crane",           baseCost: 2500000,     revenue: 52000,     desc: "Structural commercial steel frames" },
+            plant:      { name: "Automated Batch Plant", baseCost: 35000000,    revenue: 500000,    desc: "Regional material manufacturing supply" },
+            conglom:    { name: "Skyscraper Corporation",baseCost: 500000000,   revenue: 5000000,   desc: "Metropolitan sky-line development" }
+        };
+
         let gameData = {
             cash: 0,
             clickValue: 1,
-            upgrades: {
-                laborer:   { count: 0, baseCost: 15,   costMultiplier: 1.15, revenue: 1 },
-                bobcat:    { count: 0, baseCost: 100,  costMultiplier: 1.15, revenue: 8 },
-                excavator: { count: 0, baseCost: 1100, costMultiplier: 1.15, revenue: 50 }
+            lastSaveTime: Date.now(),
+            counts: {
+                laborer: 0, bobcat: 0, excavator: 0, mixer: 0,
+                bulldozer: 0, crane: 0, plant: 0, conglom: 0
             }
         };
 
-        // --- CORE MATH FORMULAS ---
-        function getUpgradeCost(upgradeKey) {
-            let up = gameData.upgrades[upgradeKey];
-            return Math.floor(up.baseCost * Math.pow(up.costMultiplier, up.count));
+        const costMultiplier = 1.15;
+
+        // --- RENDER TIERS DYNAMICALLY ---
+        function buildUpgradeUI() {
+            const container = document.getElementById('upgrades-container');
+            container.innerHTML = '';
+            
+            Object.keys(config).forEach(key => {
+                let data = config[key];
+                let html = `
+                    <div class="upgrade-item">
+                        <div class="upgrade-info">
+                            <p class="upgrade-name">${data.name} (<span id="count-${key}">0</span>)</p>
+                            <p class="upgrade-desc">+ $${data.revenue.toLocaleString()}/sec • ${data.desc}</p>
+                        </div>
+                        <button class="buy-btn" id="buy-${key}" onclick="buyUpgrade('${key}')">Cost: $15</button>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // --- CORE MATH MATRICES ---
+        function getUpgradeCost(key) {
+            let count = gameData.counts[key];
+            return Math.floor(config[key].baseCost * Math.pow(costMultiplier, count));
         }
 
         function getIncomePerSecond() {
-            let totalIPS = 0;
-            for (let key in gameData.upgrades) {
-                let up = gameData.upgrades[key];
-                totalIPS += up.count * up.revenue;
-            }
-            return totalIPS;
+            let total = 0;
+            Object.keys(config).forEach(key => {
+                total += gameData.counts[key] * config[key].revenue;
+            });
+            return total;
         }
 
-        // --- UI COORDNIATION ---
-        function updateUI() {
-            // Update main displays
-            document.getElementById('cash-display').innerText = "$" + Math.floor(gameData.cash).toLocaleString();
-            document.getElementById('ips-display').innerText = "$" + getIncomePerSecond().toLocaleString();
-
-            // Update individual upgrade buttons and counts
-            for (let key in gameData.upgrades) {
-                let cost = getUpgradeCost(key);
-                let btn = document.getElementById('buy-' + key);
-                
-                document.getElementById('count-' + key).innerText = gameData.upgrades[key].count;
-                btn.innerText = "Cost: $" + cost.toLocaleString();
-                
-                // Disable button if user doesn't have enough money
-                btn.disabled = (gameData.cash < cost);
-            }
-        }
-
-        // --- INTERACTION LOGIC ---
+        // --- INTERACTION PATTERNS ---
         document.getElementById('click-btn').addEventListener('click', () => {
             gameData.cash += gameData.clickValue;
             updateUI();
         });
 
-        function setupBuyListener(key) {
-            document.getElementById('buy-' + key).addEventListener('click', () => {
+        function buyUpgrade(key) {
+            let cost = getUpgradeCost(key);
+            if (gameData.cash >= cost) {
+                gameData.cash -= cost;
+                gameData.counts[key]++;
+                updateUI();
+                saveGame();
+            }
+        }
+
+        // --- UI REFRESH CYCLE ---
+        function updateUI() {
+            document.getElementById('cash-display').innerText = "$" + Math.floor(gameData.cash).toLocaleString();
+            document.getElementById('ips-display').innerText = "$" + getIncomePerSecond().toLocaleString();
+
+            Object.keys(config).forEach(key => {
                 let cost = getUpgradeCost(key);
-                if (gameData.cash >= cost) {
-                    gameData.cash -= cost;
-                    gameData.upgrades[key].count++;
-                    updateUI();
-                }
+                document.getElementById('count-' + key).innerText = gameData.counts[key];
+                
+                let btn = document.getElementById('buy-' + key);
+                btn.innerText = "Cost: $" + cost.toLocaleString();
+                btn.disabled = (gameData.cash < cost);
             });
         }
 
-        setupBuyListener('laborer');
-        setupBuyListener('bobcat');
-        setupBuyListener('excavator');
+        // --- STORAGE & OFFLINE ENGINE ---
+        function saveGame() {
+            gameData.lastSaveTime = Date.now();
+            localStorage.setItem('ConstructionTycoonSave', JSON.stringify(gameData));
+        }
 
-        // --- GAME LOOPS ---
-        // Main logic loop: Runs exactly 1 time per second
+        function loadGame() {
+            let saved = localStorage.getItem('ConstructionTycoonSave');
+            if (saved) {
+                let parsed = JSON.parse(saved);
+                // Schema validation mapping
+                if (parsed.counts && typeof parsed.cash === 'number') {
+                    gameData.cash = parsed.cash;
+                    Object.keys(gameData.counts).forEach(k => {
+                        if(parsed.counts[k] !== undefined) gameData.counts[k] = parsed.counts[k];
+                    });
+                    
+                    // Offline progress accounting
+                    if(parsed.lastSaveTime) {
+                        let msElapsed = Date.now() - parsed.lastSaveTime;
+                        let secondsElapsed = Math.floor(msElapsed / 1000);
+                        if (secondsElapsed > 0) {
+                            let offlineEarnings = secondsElapsed * getIncomePerSecond();
+                            gameData.cash += offlineEarnings;
+                            if(offlineEarnings > 0) {
+                                alert(`While you were off-site, your crews generated: $${offlineEarnings.toLocaleString()}`);
+                            }
+                        }
+                    }
+                }
+            }
+            updateUI();
+        }
+
+        function resetGame() {
+            if (confirm("Are you sure you want to demolish your entire enterprise and start fresh?")) {
+                localStorage.removeItem('ConstructionTycoonSave');
+                location.reload();
+            }
+        }
+
+        // --- EXECUTION LOOPS ---
+        buildUpgradeUI();
+        loadGame();
+
+        // Main production clock tick
         setInterval(() => {
             gameData.cash += getIncomePerSecond();
             updateUI();
         }, 1000);
 
-        // Initialize UI display on startup
-        updateUI();
+        // Auto save cycle back-up (Every 15 seconds)
+        setInterval(saveGame, 15000);
     </script>
 </body>
 </html>
