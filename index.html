@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Construction Tycoon Pro</title>
+    <title>Construction Tycoon Pro Enterprise</title>
     <style>
         body {
             background-color: #1a1d24;
             color: #f3f4f6;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
-            max-width: 700px;
+            max-width: 750px;
             margin: 0 auto;
         }
         .header {
@@ -21,25 +21,61 @@
         }
         .stats-panel {
             background-color: #242b35;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            display: flex;
-            justify-content: space-around;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
             text-align: center;
+        }
+        .stat-box {
+            background-color: #1e222b;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #374151;
         }
         .stat-box h2 {
             margin: 0;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             color: #f59e0b;
         }
+        .stat-box h2.premium { color: #38bdf8; }
+        .stat-box h2.prestige { color: #a855f7; }
         .stat-box p {
             margin: 5px 0 0 0;
             color: #9ca3af;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
+            font-weight: bold;
         }
+        .monetization-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .monetize-btn {
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: #111827;
+            transition: transform 0.1s;
+        }
+        .btn-ad { background-color: #f43f5e; color: white; }
+        .btn-ad:hover { background-color: #e11d48; }
+        .btn-shop { background-color: #38bdf8; }
+        .btn-shop:hover { background-color: #0ea5e9; }
+        .monetize-btn:active, .action-btn:active { transform: scale(0.98); }
+        
         .action-btn {
             display: block;
             width: 100%;
@@ -52,106 +88,113 @@
             border-radius: 8px;
             cursor: pointer;
             text-transform: uppercase;
-            transition: all 0.1s ease;
             margin-bottom: 25px;
             box-shadow: 0 4px 0 #b45309;
         }
-        .action-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0px 0 #b45309;
-        }
-        .upgrade-section {
+        .upgrade-section, .prestige-section {
             background-color: #242b35;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            margin-bottom: 25px;
         }
         .upgrade-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #374151;
         }
-        .upgrade-item:last-child {
-            border-bottom: none;
-        }
-        .upgrade-info p {
-            margin: 0;
-        }
-        .upgrade-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        .upgrade-desc {
-            font-size: 0.85rem;
-            color: #9ca3af;
-            margin-top: 2px !important;
-        }
+        .upgrade-item:last-child { border-bottom: none; }
+        .upgrade-info p { margin: 0; }
+        .upgrade-name { font-weight: bold; font-size: 1.05rem; }
+        .upgrade-desc { font-size: 0.85rem; color: #9ca3af; margin-top: 2px !important; }
         .buy-btn {
             background-color: #10b981;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1rem;
-            min-width: 160px;
-            text-align: center;
+            min-width: 150px;
         }
-        .buy-btn:hover {
-            background-color: #059669;
+        .buy-btn:hover { background-color: #059669; }
+        .buy-btn:disabled { background-color: #374151; color: #6b7280; cursor: not-allowed; }
+        
+        .prestige-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .buy-btn:disabled {
-            background-color: #374151;
-            color: #6b7280;
-            cursor: not-allowed;
-        }
-        .footer-controls {
-            margin-top: 15px;
-            text-align: right;
-        }
-        .reset-btn {
-            background: none;
-            border: 1px solid #ef4444;
-            color: #ef4444;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-        .reset-btn:hover {
-            background-color: #ef4444;
+        .prestige-btn {
+            background-color: #a855f7;
             color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
         }
+        .prestige-btn:hover { background-color: #9333ea; }
+        .prestige-btn:disabled { background-color: #374151; color: #6b7280; cursor: not-allowed; }
+
+        .footer-controls { text-align: right; margin-top: 15px; }
+        .reset-btn { background: none; border: 1px solid #ef4444; color: #ef4444; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .reset-btn:hover { background-color: #ef4444; color: white; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>🏗️ Construction Tycoon Pro</h1>
-        <p>Heavy Equipment & Enterprise Infrastructure Architecture</p>
+        <p>Enterprise Operations & Logistics Engine</p>
     </div>
 
     <div class="stats-panel">
         <div class="stat-box">
             <h2 id="cash-display">$0</h2>
-            <p>Available Capital</p>
+            <p>Liquid Capital</p>
         </div>
         <div class="stat-box">
             <h2 id="ips-display">$0</h2>
-            <p>Revenue / Sec</p>
+            <p>Net Revenue / Sec</p>
         </div>
+        <div class="stat-box">
+            <h2 id="tokens-display" class="premium">0</h2>
+            <p>Safety Tokens (Premium)</p>
+        </div>
+        <div class="stat-box">
+            <h2 id="permits-display" class="prestige">0</h2>
+            <p>Corporate Permits (Boost)</p>
+        </div>
+    </div>
+
+    <div class="monetization-row">
+        <button class="monetize-btn btn-ad" onclick="triggerRewardedAd()">
+            📺 Watch Video Ad <br><small>(2x Multiplier for 30s)</small>
+        </button>
+        <button class="monetize-btn btn-shop" onclick="buyRushOrder()">
+            💎 Buy Rush Order <br><small>Cost: 10 Tokens (Gain 2 Hrs Cash)</small>
+        </button>
     </div>
 
     <button class="action-btn" id="click-btn">Break Ground & Haul Dirt (+ $1)</button>
 
     <div class="upgrade-section">
         <h3 style="margin-top: 0; border-bottom: 2px solid #374151; padding-bottom: 8px;">Asset Procurement Pipeline</h3>
-        
-        <div id="upgrades-container">
+        <div id="upgrades-container"></div>
+    </div>
+
+    <div class="prestige-section">
+        <h3 style="margin-top:0; color:#a855f7;">Corporate Liquidation (Prestige)</h3>
+        <div class="prestige-panel">
+            <div>
+                <p style="margin:0; font-size:0.95rem;">Liquidate company assets for permanent municipal zoning privileges.</p>
+                <p class="upgrade-desc" style="color:#c084fc;">Pending Permits on Liquidation: <span id="pending-permits" style="font-weight:bold;">0</span></p>
             </div>
+            <button class="prestige-btn" id="prestige-btn" onclick="liquidateCompany()">Liquidate & Restart</button>
+        </div>
     </div>
 
     <div class="footer-controls">
@@ -159,13 +202,13 @@
     </div>
 
     <script>
-        // --- DATA ARCHITECTURE ---
+        // --- DATA ARCHITECTURE & ENGINE BALANCING ---
         const config = {
             laborer:    { name: "Manual Laborer",        baseCost: 15,          revenue: 1,         desc: "Hand tools & ground prep" },
             bobcat:     { name: "Skid Steer (Bobcat)",   baseCost: 150,         revenue: 8,         desc: "Light grading operations" },
             excavator:  { name: "Mini Excavator",        baseCost: 1500,        revenue: 70,        desc: "Utility trenching setups" },
             mixer:      { name: "Concrete Mixer Truck",  baseCost: 15000,       revenue: 600,       desc: "Foundations & structural slabs" },
-            bulldozer:  { name: "All-Terrain Bulldozer", baseCost: 17500,      revenue: 5500,      desc: "Massive scale earthmoving site work" },
+            bulldozer:  { name: "All-Terrain Bulldozer", baseCost: 175000,      revenue: 5500,      desc: "Massive scale earthmoving site work" },
             crane:      { name: "Tower Crane",           baseCost: 2500000,     revenue: 52000,     desc: "Structural commercial steel frames" },
             plant:      { name: "Automated Batch Plant", baseCost: 35000000,    revenue: 500000,    desc: "Regional material manufacturing supply" },
             conglom:    { name: "Skyscraper Corporation",baseCost: 500000000,   revenue: 5000000,   desc: "Metropolitan sky-line development" }
@@ -173,53 +216,65 @@
 
         let gameData = {
             cash: 0,
-            clickValue: 1,
+            lifetimeEarnings: 0,
+            permits: 0,
+            tokens: 25, // Start with a few premium tokens to introduce mechanics to players
             lastSaveTime: Date.now(),
-            counts: {
-                laborer: 0, bobcat: 0, excavator: 0, mixer: 0,
-                bulldozer: 0, crane: 0, plant: 0, conglom: 0
-            }
+            counts: { laborer: 0, bobcat: 0, excavator: 0, mixer: 0, bulldozer: 0, crane: 0, plant: 0, conglom: 0 }
         };
 
         const costMultiplier = 1.15;
+        let adMultiplierActive = false;
+        let adMultiplierTimer = 0;
 
-        // --- RENDER TIERS DYNAMICALLY ---
+        // --- RENDER TIERS ---
         function buildUpgradeUI() {
             const container = document.getElementById('upgrades-container');
             container.innerHTML = '';
-            
             Object.keys(config).forEach(key => {
-                let data = config[key];
-                let html = `
+                container.innerHTML += `
                     <div class="upgrade-item">
                         <div class="upgrade-info">
-                            <p class="upgrade-name">${data.name} (<span id="count-${key}">0</span>)</p>
-                            <p class="upgrade-desc">+ $${data.revenue.toLocaleString()}/sec • ${data.desc}</p>
+                            <p class="upgrade-name">${config[key].name} (<span id="count-${key}">0</span>)</p>
+                            <p class="upgrade-desc">+ $${config[key].revenue.toLocaleString()}/sec • ${config[key].desc}</p>
                         </div>
                         <button class="buy-btn" id="buy-${key}" onclick="buyUpgrade('${key}')">Cost: $15</button>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    </div>`;
             });
         }
 
-        // --- CORE MATH MATRICES ---
+        // --- MATHEMATICAL MATH ENGINES ---
         function getUpgradeCost(key) {
-            let count = gameData.counts[key];
-            return Math.floor(config[key].baseCost * Math.pow(costMultiplier, count));
+            return Math.floor(config[key].baseCost * Math.pow(costMultiplier, gameData.counts[key]));
         }
 
-        function getIncomePerSecond() {
+        function getBaseIncomePerSecond() {
             let total = 0;
-            Object.keys(config).forEach(key => {
-                total += gameData.counts[key] * config[key].revenue;
-            });
+            Object.keys(config).forEach(key => { total += gameData.counts[key] * config[key].revenue; });
             return total;
         }
 
-        // --- INTERACTION PATTERNS ---
+        function getFinalIncomePerSecond() {
+            // Formula: Base Income * Prestige Permit Multiplier (+5% per permit) * Ad Multiplier Matrix
+            let permitBonus = 1 + (gameData.permits * 0.05);
+            let adBonus = adMultiplierActive ? 2 : 1;
+            return getBaseIncomePerSecond() * permitBonus * adBonus;
+        }
+
+        function calculatePendingPermits() {
+            // Prestige calculation: base math mapping lifetime cash to a progressive curve
+            if (gameData.lifetimeEarnings < 100000) return 0;
+            let rawPermits = Math.floor(Math.sqrt(gameData.lifetimeEarnings / 100000));
+            let earned = rawPermits - gameData.permits;
+            return earned > 0 ? earned : 0;
+        }
+
+        // --- INTERACTIONS & CORE CYCLES ---
         document.getElementById('click-btn').addEventListener('click', () => {
-            gameData.cash += gameData.clickValue;
+            let permitBonus = 1 + (gameData.permits * 0.05);
+            let clickVal = 1 * permitBonus * (adMultiplierActive ? 2 : 1);
+            gameData.cash += clickVal;
+            gameData.lifetimeEarnings += clickVal;
             updateUI();
         });
 
@@ -233,48 +288,98 @@
             }
         }
 
-        // --- UI REFRESH CYCLE ---
+        // --- MONETIZATION HOOKS (SIMULATED APIS) ---
+        function triggerRewardedAd() {
+            if(adMultiplierActive) {
+                alert("An advertising contract is already running active on site.");
+                return;
+            }
+            // Simulating SDK callback handling hook
+            alert("Streaming Advertisement... \n[Simulated 30-Second Ad Presentation Video Scene]");
+            adMultiplierActive = true;
+            adMultiplierTimer = 30; // 30 seconds operational limit
+            updateUI();
+        }
+
+        function buyRushOrder() {
+            if (gameData.tokens >= 10) {
+                gameData.tokens -= 10;
+                let twoHoursIncome = getFinalIncomePerSecond() * 7200;
+                // Safetynet safeguard for early-game users
+                if(twoHoursIncome === 0) twoHoursIncome = 5000; 
+                
+                gameData.cash += twoHoursIncome;
+                gameData.lifetimeEarnings += twoHoursIncome;
+                alert(`Rush Order Authorized! Immediate supply delivery generated: $${twoHoursIncome.toLocaleString()}`);
+                updateUI();
+                saveGame();
+            } else {
+                alert("Insufficient Safety Tokens. Secure more tokens via checkout terminal framework.");
+            }
+        }
+
+        // --- PRESTIGE RESET SEQUENCE ---
+        function liquidateCompany() {
+            let pending = calculatePendingPermits();
+            if (pending > 0) {
+                if (confirm(`Liquidating will tear down current infrastructure setups. You will secure +${pending} permanent Corporate Permits. Proceed with restructuring?`)) {
+                    gameData.permits += pending;
+                    gameData.cash = 0;
+                    Object.keys(gameData.counts).forEach(k => gameData.counts[k] = 0);
+                    adMultiplierActive = false;
+                    adMultiplierTimer = 0;
+                    
+                    alert("Enterprise Restructured! Your zoning authority has been extended.");
+                    updateUI();
+                    saveGame();
+                }
+            }
+        }
+
+        // --- ENGINE UI LOGISTICS COMPLIANCE ---
         function updateUI() {
             document.getElementById('cash-display').innerText = "$" + Math.floor(gameData.cash).toLocaleString();
-            document.getElementById('ips-display').innerText = "$" + getIncomePerSecond().toLocaleString();
+            document.getElementById('ips-display').innerText = "$" + Math.floor(getFinalIncomePerSecond()).toLocaleString();
+            document.getElementById('tokens-display').innerText = gameData.tokens.toLocaleString();
+            document.getElementById('permits-display').innerText = gameData.permits.toLocaleString();
+            
+            let pending = calculatePendingPermits();
+            document.getElementById('pending-permits').innerText = pending.toLocaleString();
+            document.getElementById('prestige-btn').disabled = (pending === 0);
 
             Object.keys(config).forEach(key => {
                 let cost = getUpgradeCost(key);
                 document.getElementById('count-' + key).innerText = gameData.counts[key];
-                
                 let btn = document.getElementById('buy-' + key);
                 btn.innerText = "Cost: $" + cost.toLocaleString();
                 btn.disabled = (gameData.cash < cost);
             });
         }
 
-        // --- STORAGE & OFFLINE ENGINE ---
+        // --- PERSISTENCE UTILITIES ---
         function saveGame() {
             gameData.lastSaveTime = Date.now();
-            localStorage.setItem('ConstructionTycoonSave', JSON.stringify(gameData));
+            localStorage.setItem('ConstructionTycoonEnterpriseSave', JSON.stringify(gameData));
         }
 
         function loadGame() {
-            let saved = localStorage.getItem('ConstructionTycoonSave');
+            let saved = localStorage.getItem('ConstructionTycoonEnterpriseSave');
             if (saved) {
                 let parsed = JSON.parse(saved);
-                // Schema validation mapping
-                if (parsed.counts && typeof parsed.cash === 'number') {
+                if (typeof parsed.cash === 'number') {
                     gameData.cash = parsed.cash;
-                    Object.keys(gameData.counts).forEach(k => {
-                        if(parsed.counts[k] !== undefined) gameData.counts[k] = parsed.counts[k];
-                    });
+                    gameData.lifetimeEarnings = parsed.lifetimeEarnings || parsed.cash;
+                    gameData.permits = parsed.permits || 0;
+                    gameData.tokens = parsed.tokens !== undefined ? parsed.tokens : 25;
+                    Object.keys(gameData.counts).forEach(k => { if(parsed.counts[k] !== undefined) gameData.counts[k] = parsed.counts[k]; });
                     
-                    // Offline progress accounting
                     if(parsed.lastSaveTime) {
-                        let msElapsed = Date.now() - parsed.lastSaveTime;
-                        let secondsElapsed = Math.floor(msElapsed / 1000);
+                        let secondsElapsed = Math.floor((Date.now() - parsed.lastSaveTime) / 1000);
                         if (secondsElapsed > 0) {
-                            let offlineEarnings = secondsElapsed * getIncomePerSecond();
+                            let offlineEarnings = secondsElapsed * getFinalIncomePerSecond();
                             gameData.cash += offlineEarnings;
-                            if(offlineEarnings > 0) {
-                                alert(`While you were off-site, your crews generated: $${offlineEarnings.toLocaleString()}`);
-                            }
+                            gameData.lifetimeEarnings += offlineEarnings;
+                            if(offlineEarnings > 0) alert(`While away, your operation cleared: $${offlineEarnings.toLocaleString()}`);
                         }
                     }
                 }
@@ -283,23 +388,33 @@
         }
 
         function resetGame() {
-            if (confirm("Are you sure you want to demolish your entire enterprise and start fresh?")) {
-                localStorage.removeItem('ConstructionTycoonSave');
+            if (confirm("Demolish entire digital cloud save profile? All premium configurations will wipe clean.")) {
+                localStorage.removeItem('ConstructionTycoonEnterpriseSave');
                 location.reload();
             }
         }
 
-        // --- EXECUTION LOOPS ---
+        // --- OPERATION LOOPS ---
         buildUpgradeUI();
         loadGame();
 
-        // Main production clock tick
+        // Core 1-Second Tick Time System
         setInterval(() => {
-            gameData.cash += getIncomePerSecond();
+            gameData.cash += getFinalIncomePerSecond();
+            gameData.lifetimeEarnings += getFinalIncomePerSecond();
+            
+            // Manage active ad decay mechanics
+            if (adMultiplierActive) {
+                adMultiplierTimer--;
+                if(adMultiplierTimer <= 0) {
+                    adMultiplierActive = false;
+                    alert("Ad placement multiplier contract expired.");
+                }
+            }
             updateUI();
         }, 1000);
 
-        // Auto save cycle back-up (Every 15 seconds)
+        // Core Auto-Save Interval Setup
         setInterval(saveGame, 15000);
     </script>
 </body>
