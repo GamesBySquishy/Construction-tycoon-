@@ -256,21 +256,28 @@
 
         // --- TYCOON LOGIC ENGINES ---
         function getUpgradeCost(key) { return Math.floor(config[key].baseCost * Math.pow(costMultiplier, gameData.counts[key])); }
+        
         function getBaseIncomePerSecond() {
             let total = 0;
             Object.keys(config).forEach(key => { total += gameData.counts[key] * config[key].revenue; });
             return total;
         }
+        
         function getFinalIncomePerSecond() {
             let permitBonus = 1 + (gameData.permits * 0.05);
             let adBonus = adMultiplierActive ? 2 : 1;
             return getBaseIncomePerSecond() * permitBonus * adBonus;
         }
         
-        // BALANCED PRESTIGE FORMULA: Unlocks early at $5,000 lifetime earnings
+        // FAILSAFE PRESTIGE FORMULA: Calculate rewards cleanly based on active infrastructure count
         function calculatePendingPermits() {
-            if (gameData.lifetimeEarnings < 5000) return 0;
-            let earned = Math.floor(Math.sqrt(gameData.lifetimeEarnings / 5000)) - gameData.permits;
+            let infrastructureValue = 0;
+            Object.keys(config).forEach(key => {
+                infrastructureValue += gameData.counts[key] * (config[key].revenue * 10);
+            });
+            
+            if (infrastructureValue < 50) return 0;
+            let earned = Math.floor(Math.sqrt(infrastructureValue / 50));
             return earned > 0 ? earned : 0;
         }
 
@@ -310,6 +317,7 @@
                 triggerPortalMidrollAd(() => {
                     gameData.permits += pending;
                     gameData.cash = 0;
+                    gameData.lifetimeEarnings = 0; // Clear history metric safely
                     Object.keys(gameData.counts).forEach(k => gameData.counts[k] = 0);
                     adMultiplierActive = false;
                     adMultiplierTimer = 0;
