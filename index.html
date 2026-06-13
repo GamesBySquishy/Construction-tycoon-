@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Construction Tycoon Pro - Portal Edition</title>
     
+    <!-- 1. INCLUDE PORTAL SDK SCRIPT TAGS -->
+    <!-- Kongregate Web SDK -->
     <script src="https://www.kongregateapi.com/api/v1/kongregate_api.js"></script>
+    <!-- CrazyGames SDK -->
     <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 
     <style>
@@ -152,12 +155,9 @@
         let kongregateAPI = null;
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Initialize CrazyGames
             if (window.CrazyGames && window.CrazyGames.SDK) {
                 crazyGameSDK = window.CrazyGames.SDK;
             }
-            
-            // Initialize Kongregate
             if (window.kongregateAPI) {
                 window.kongregateAPI.loadAPI(() => {
                     kongregateAPI = window.kongregateAPI.getAPI();
@@ -188,49 +188,46 @@
         let adMultiplierTimer = 0;
         let isGamePaused = false;
 
+        // --- RENDER TIERS ---
+        function buildUpgradeUI() {
+            const container = document.getElementById('upgrades-container');
+            container.innerHTML = '';
+            Object.keys(config).forEach(key => {
+                container.innerHTML += `
+                    <div class="upgrade-item">
+                        <div class="upgrade-info">
+                            <p class="upgrade-name">${config[key].name} (<span id="count-${key}">0</span>)</p>
+                            <p class="upgrade-desc">+ $${config[key].revenue.toLocaleString()}/sec • ${config[key].desc}</p>
+                        </div>
+                        <button class="buy-btn" id="buy-${key}" onclick="buyUpgrade('${key}')">Cost: $15</button>
+                    </div>`;
+            });
+        }
+
         // --- SDK ADVERTISING WRAPPERS ---
-        
-        // 1. REWARDED ADS (Player chooses to watch for a 2x boost)
         function triggerPortalRewardedAd() {
             muteAudio();
             isGamePaused = true;
 
-            // Scenario A: Running on CrazyGames
             if (crazyGameSDK) {
                 crazyGameSDK.ad.requestAd('rewarded', {
                     adStarted: () => console.log("CrazyGames Rewarded Ad Started"),
-                    adFinished: () => {
-                        unmuteAudio();
-                        isGamePaused = false;
-                        activateBoost(60); // Give 60 seconds of double speed
-                    },
-                    adError: (error) => {
-                        unmuteAudio();
-                        isGamePaused = false;
-                        console.error("CrazyGames Ad Error:", error);
-                    }
+                    adFinished: () => { unmuteAudio(); isGamePaused = false; activateBoost(60); },
+                    adError: (error) => { unmuteAudio(); isGamePaused = false; console.error("CrazyGames Ad Error:", error); }
                 });
-            } 
-            // Scenario B: Running on Kongregate
-            else if (kongregateAPI && kongregateAPI.mtx) {
+            } else if (kongregateAPI && kongregateAPI.mtx) {
                 kongregateAPI.mtx.showIncentivizedAd((result) => {
                     unmuteAudio();
                     isGamePaused = false;
-                    if (result.success) {
-                        activateBoost(60);
-                    }
+                    if (result.success) { activateBoost(60); }
                 });
-            } 
-            // Fallback: Local testing mode
-            else {
+            } else {
                 unmuteAudio();
                 isGamePaused = false;
-                console.log("No platform SDK found. Running local testing mock boost.");
                 activateBoost(30);
             }
         }
 
-        // 2. MID-ROLL SYSTEM ADS (Breaks between menus, like triggering a prestige)
         function triggerPortalMidrollAd(callback) {
             muteAudio();
             isGamePaused = true;
@@ -242,7 +239,6 @@
                     adError: () => { unmuteAudio(); isGamePaused = false; callback(); }
                 });
             } else {
-                // Kongregate handles system ads via direct portal placement; pass straight back to logic
                 unmuteAudio();
                 isGamePaused = false;
                 callback();
@@ -255,8 +251,8 @@
             updateUI();
         }
 
-        function muteAudio() { /* If you add sound effects later, mute them here during ads */ }
-        function unmuteAudio() { /* Unmute sound effects here */ }
+        function muteAudio() {}
+        function unmuteAudio() {}
 
         // --- TYCOON LOGIC ENGINES ---
         function getUpgradeCost(key) { return Math.floor(config[key].baseCost * Math.pow(costMultiplier, gameData.counts[key])); }
@@ -309,7 +305,6 @@
         function liquidateCompany() {
             let pending = calculatePendingPermits();
             if (pending > 0 && confirm("Restructure your empire? Current assets will be completely recycled.")) {
-                // Run a standard system midroll ad during the transition screen wipe
                 triggerPortalMidrollAd(() => {
                     gameData.permits += pending;
                     gameData.cash = 0;
@@ -322,9 +317,7 @@
             }
         }
 
-        // --- PLATFORM ANALYTICS ENGINE INTEGRATION ---
         function reportHighscoreToPortals() {
-            // Submit metrics to portal highscore leaderboards automatically
             if (kongregateAPI) {
                 kongregateAPI.stats.submit("LifetimeEarnings", gameData.lifetimeEarnings);
                 kongregateAPI.stats.submit("CorporatePermits", gameData.permits);
@@ -345,7 +338,7 @@
             let adBtn = document.getElementById('ad-btn');
             if (adMultiplierActive) {
                 adBtn.disabled = true;
-                document.getElementById('ad-timer-text').innerText = `Active: ${adMultiplierTimer}s remaining`;
+                document.getElementById('ad-timer-text').innerText = `Active: ${Math.ceil(adMultiplierTimer)}s remaining`;
             } else {
                 adBtn.disabled = false;
                 document.getElementById('ad-timer-text').innerText = "Watch Ad (30s Double Income)";
@@ -386,7 +379,6 @@
                     }
                 }
             }
-            buildUpgradeUI();
             updateUI();
         }
 
@@ -397,8 +389,14 @@
             }
         }
 
-        // --- RUNNING TICK ENGINE ---
+        // --- RUNNING TICK ENGINE INITIALIZATION ---
+        // 1. Build the HTML elements first so the pipeline exists on screen
+        buildUpgradeUI();
+
+        // 2. Load the player's saved data and populate the numbers
         loadGame();
+
+        // 3. Start high-precision core game loop (10 updates per second)
         setInterval(() => {
             if (!isGamePaused) {
                 gameData.cash += getFinalIncomePerSecond() / 10;
@@ -410,8 +408,9 @@
                 }
                 updateUI();
             }
-        }, 100); // 10 ticks per second for visual smoothness
+        }, 100);
 
+        // 4. Start background auto-save loop (Every 15 seconds)
         setInterval(saveGame, 15000);
     </script>
 </body>
