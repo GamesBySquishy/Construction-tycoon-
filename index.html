@@ -266,9 +266,11 @@
             let adBonus = adMultiplierActive ? 2 : 1;
             return getBaseIncomePerSecond() * permitBonus * adBonus;
         }
+        
+        // BALANCED PRESTIGE FORMULA: Unlocks early at $5,000 lifetime earnings
         function calculatePendingPermits() {
-            if (gameData.lifetimeEarnings < 100000) return 0;
-            let earned = Math.floor(Math.sqrt(gameData.lifetimeEarnings / 100000)) - gameData.permits;
+            if (gameData.lifetimeEarnings < 5000) return 0;
+            let earned = Math.floor(Math.sqrt(gameData.lifetimeEarnings / 5000)) - gameData.permits;
             return earned > 0 ? earned : 0;
         }
 
@@ -390,13 +392,9 @@
         }
 
         // --- RUNNING TICK ENGINE INITIALIZATION ---
-        // 1. Build the HTML elements first so the pipeline exists on screen
         buildUpgradeUI();
-
-        // 2. Load the player's saved data and populate the numbers
         loadGame();
 
-        // 3. Start high-precision core game loop (10 updates per second)
         setInterval(() => {
             if (!isGamePaused) {
                 gameData.cash += getFinalIncomePerSecond() / 10;
@@ -410,7 +408,6 @@
             }
         }, 100);
 
-        // 4. Start background auto-save loop (Every 15 seconds)
         setInterval(saveGame, 15000);
     </script>
 </body>
