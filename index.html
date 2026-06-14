@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Construction Tycoon Pro - Portal Edition</title>
+    <title>Construction Tycoon Pro - Final Edition</title>
     
-    <!-- 1. INCLUDE PORTAL SDK SCRIPT TAGS -->
-    <!-- Kongregate Web SDK -->
+    <!-- SDK SCRIPT TAGS -->
     <script src="https://www.kongregateapi.com/api/v1/kongregate_api.js"></script>
-    <!-- CrazyGames SDK -->
     <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 
     <style>
@@ -83,7 +81,6 @@
         .prestige-panel { display: flex; justify-content: space-between; align-items: center; }
         .prestige-btn { background-color: #a855f7; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .prestige-btn:hover { background-color: #9333ea; }
-        .prestige-btn:disabled { background-color: #374151; color: #6b7280; cursor: not-allowed; }
 
         .footer-controls { text-align: right; margin-top: 15px; }
         .reset-btn { background: none; border: 1px solid #ef4444; color: #ef4444; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
@@ -161,7 +158,6 @@
             if (window.kongregateAPI) {
                 window.kongregateAPI.loadAPI(() => {
                     kongregateAPI = window.kongregateAPI.getAPI();
-                    console.log("Kongregate API Loaded Successfully");
                 });
             }
         });
@@ -204,42 +200,32 @@
             });
         }
 
-        // --- SDK ADVERTISING WRAPPERS ---
         function triggerPortalRewardedAd() {
-            muteAudio();
             isGamePaused = true;
-
             if (crazyGameSDK) {
                 crazyGameSDK.ad.requestAd('rewarded', {
-                    adStarted: () => console.log("CrazyGames Rewarded Ad Started"),
-                    adFinished: () => { unmuteAudio(); isGamePaused = false; activateBoost(60); },
-                    adError: (error) => { unmuteAudio(); isGamePaused = false; console.error("CrazyGames Ad Error:", error); }
+                    adFinished: () => { isGamePaused = false; activateBoost(60); },
+                    adError: () => { isGamePaused = false; }
                 });
             } else if (kongregateAPI && kongregateAPI.mtx) {
                 kongregateAPI.mtx.showIncentivizedAd((result) => {
-                    unmuteAudio();
                     isGamePaused = false;
                     if (result.success) { activateBoost(60); }
                 });
             } else {
-                unmuteAudio();
                 isGamePaused = false;
                 activateBoost(30);
             }
         }
 
         function triggerPortalMidrollAd(callback) {
-            muteAudio();
             isGamePaused = true;
-
             if (crazyGameSDK) {
                 crazyGameSDK.ad.requestAd('midroll', {
-                    adStarted: () => console.log("Midroll started"),
-                    adFinished: () => { unmuteAudio(); isGamePaused = false; callback(); },
-                    adError: () => { unmuteAudio(); isGamePaused = false; callback(); }
+                    adFinished: () => { isGamePaused = false; callback(); },
+                    adError: () => { isGamePaused = false; callback(); }
                 });
             } else {
-                unmuteAudio();
                 isGamePaused = false;
                 callback();
             }
@@ -251,25 +237,19 @@
             updateUI();
         }
 
-        function muteAudio() {}
-        function unmuteAudio() {}
-
-        // --- TYCOON LOGIC ENGINES ---
         function getUpgradeCost(key) { return Math.floor(config[key].baseCost * Math.pow(costMultiplier, gameData.counts[key])); }
-        
         function getBaseIncomePerSecond() {
             let total = 0;
             Object.keys(config).forEach(key => { total += gameData.counts[key] * config[key].revenue; });
             return total;
         }
-        
         function getFinalIncomePerSecond() {
             let permitBonus = 1 + (gameData.permits * 0.05);
             let adBonus = adMultiplierActive ? 2 : 1;
             return getBaseIncomePerSecond() * permitBonus * adBonus;
         }
         
-        // FAILSAFE PRESTIGE FORMULA: Calculate rewards cleanly based on active infrastructure count
+        // PRESTIGE FORMULA
         function calculatePendingPermits() {
             let infrastructureValue = 0;
             Object.keys(config).forEach(key => {
@@ -277,11 +257,9 @@
             });
             
             if (infrastructureValue < 50) return 0;
-            let earned = Math.floor(Math.sqrt(infrastructureValue / 50));
-            return earned > 0 ? earned : 0;
+            return Math.floor(Math.sqrt(infrastructureValue / 50));
         }
 
-        // --- SYSTEM ENGINE BINDINGS ---
         document.getElementById('click-btn').addEventListener('click', () => {
             if(isGamePaused) return;
             let clickVal = 1 * (1 + (gameData.permits * 0.05)) * (adMultiplierActive ? 2 : 1);
@@ -311,18 +289,30 @@
             }
         }
 
+        // FULLY REWRITTEN PRESTIGE ACTION
         function liquidateCompany() {
             let pending = calculatePendingPermits();
-            if (pending > 0 && confirm("Restructure your empire? Current assets will be completely recycled.")) {
+            
+            // If they don't have enough to prestige, pop up an alert explaining exactly why.
+            if (pending <= 0) {
+                alert("Error: Not enough assets! You must buy at least 1 Skid Steer (Bobcat) to qualify for a Corporate Permit.");
+                return;
+            }
+
+            // If they do have enough, ask for confirmation.
+            if (confirm(`Restructure your empire? Your current cash and assets will be recycled for +${pending} Permanent Permits.`)) {
                 triggerPortalMidrollAd(() => {
                     gameData.permits += pending;
                     gameData.cash = 0;
-                    gameData.lifetimeEarnings = 0; // Clear history metric safely
+                    gameData.lifetimeEarnings = 0; 
                     Object.keys(gameData.counts).forEach(k => gameData.counts[k] = 0);
                     adMultiplierActive = false;
                     adMultiplierTimer = 0;
                     updateUI();
                     saveGame();
+                    
+                    // Show a success message so you know it worked!
+                    alert(`Success! You earned +${pending} Permits. Your base income is now permanently boosted!`);
                 });
             }
         }
@@ -334,7 +324,6 @@
             }
         }
 
-        // --- UI REFRESH LAYER ---
         function updateUI() {
             document.getElementById('cash-display').innerText = "$" + Math.floor(gameData.cash).toLocaleString();
             document.getElementById('ips-display').innerText = "$" + Math.floor(getFinalIncomePerSecond()).toLocaleString();
@@ -343,7 +332,6 @@
             
             let pending = calculatePendingPermits();
             document.getElementById('pending-permits').innerText = pending.toLocaleString();
-            document.getElementById('prestige-btn').disabled = (pending === 0);
 
             let adBtn = document.getElementById('ad-btn');
             if (adMultiplierActive) {
@@ -363,7 +351,6 @@
             });
         }
 
-        // --- DATA PERSISTENCE ---
         function saveGame() {
             gameData.lastSaveTime = Date.now();
             localStorage.setItem('ConstructionTycoonPortalSave', JSON.stringify(gameData));
@@ -399,7 +386,6 @@
             }
         }
 
-        // --- RUNNING TICK ENGINE INITIALIZATION ---
         buildUpgradeUI();
         loadGame();
 
